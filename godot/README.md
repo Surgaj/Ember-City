@@ -2,9 +2,9 @@
 
 Branch: `godot-rebuild`
 
-## Milestone 0.1 — Building Structure
+## Milestone 0.2 — Structure + Surroundings
 
-This milestone intentionally contains **only the inn architecture**.
+This milestone contains the **inn architecture plus its immediate exterior surroundings**.
 
 Implemented:
 
@@ -18,11 +18,14 @@ Implemented:
 - future expansion wing with an architectural doorway;
 - timber beams, posts and entrance frame;
 - basic soft lighting and real engine shadows;
-- responsive camera framing for portrait/mobile screens.
+- responsive camera framing for portrait/mobile screens;
+- terrain base surrounding the building;
+- a clear entrance path aligned with the front doorway;
+- grass variation, rocks, bushes and perimeter trees;
+- an intentionally empty clearing reserved for the future expansion wing.
 
 Intentionally not implemented yet:
 
-- surroundings / landscaping;
 - furniture;
 - reception desk;
 - Ember;
@@ -37,7 +40,7 @@ The current structure establishes the future visual flow:
 
 `front entrance → lobby/reception → Ember core → room / café → future wing`
 
-The next milestone should work on the **surroundings and exterior footprint only**, without adding gameplay yet.
+The next milestone should work on **interior furnishing and spatial identity only** — reception desk, room furniture and café blockout — without guests or economy yet.
 
 
 ## Web preview
