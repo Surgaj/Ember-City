@@ -51,6 +51,17 @@ jobs:
             exit 1
           fi
 
+      - name: Run first guest navigation smoke test
+        shell: bash
+        run: |
+          set -o pipefail
+          timeout 25 godot --headless --path godot --script res://tests/first_guest_smoke.gd 2>&1 | tee first-guest-smoke.log
+          if grep -Eq 'SCRIPT ERROR:|Parse Error:|FIRST GUEST FAIL:' first-guest-smoke.log; then
+            echo 'First guest smoke test failed.'
+            exit 1
+          fi
+          grep -q 'FIRST GUEST PASS:' first-guest-smoke.log
+
       - name: Export Web preview
         shell: bash
         run: |
