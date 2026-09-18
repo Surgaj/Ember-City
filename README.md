@@ -1,21 +1,30 @@
-# EMBER CITY — Idle Game
+# EMBER INN
 
-Milestone 0.1 — **Primeira Chama**
+Visual idle tycoon mobile-first built as a compact living diorama.
 
-Protótipo mobile-first jogável em HTML5 Canvas.
+## Current direction
 
-## Loop atual
+EMBER INN replaces the previous city-builder prototype on `main`.
 
-CONSTRUIR → PRODUZIR → AUTOMATIZAR → MELHORAR → ALIMENTAR A EMBER → EXPANDIR
+The core loop is now visual:
 
-## Incluído
+guest arrives → check-in → room → café → payment → room gets dirty → cleaner resets it → next guest.
 
-- Ember central viva
-- Casa, Oficina e Mercado
-- Moedas + Calor por minuto
-- 6 moradores andando automaticamente
-- Upgrades de prédios
-- Save automático via localStorage
-- Produção offline de até 8 horas
-- Primeira expansão visual ao alimentar a Ember
-- Controles por toque e mouse
+Progress is driven by visible transformation rather than resource dashboards:
+
+- upgrade reception, rooms and café;
+- guests and staff move through the diorama;
+- rooms become occupied, dirty and clean again;
+- payments and Ember energy travel visibly through the scene;
+- Ember unlocks the second room and the thermal garden;
+- offline earnings remain supported without turning the game into a HUD simulator.
+
+## Legacy
+
+The last city-builder version is preserved in:
+
+`legacy-ember-city-0.6.1`
+
+## Live build
+
+GitHub Pages deploys from `main`.
