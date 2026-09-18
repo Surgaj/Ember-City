@@ -2,9 +2,9 @@
 
 Branch: `godot-rebuild`
 
-## Milestone 0.5 — First Service
+## Milestone 0.6 — Readable Check-in + Camera Pan
 
-This milestone turns the first guest test into the **first readable service interaction**.
+This milestone makes the first service interaction readable and adds direct camera navigation for mobile/desktop.
 
 Implemented:
 
@@ -38,7 +38,13 @@ Implemented:
 - the guest now follows a narrow safe navigation ribbon instead of cutting through props;
 - one receptionist stands behind the counter with an idle/service reaction;
 - check-in and payment emit visible receptionist reactions;
-- the Ember flame now animates continuously with moving flame layers and rising sparks.
+- the Ember flame now animates continuously with moving flame layers and rising sparks;
+- the receptionist visibly hands a physical key to the guest;
+- guest turning is smoothed instead of snapping;
+- payment launches visible light pulses toward the Ember;
+- the Ember reacts by briefly growing and brightening;
+- flame emission was reduced so orange/red shape remains visible;
+- the isometric camera can now be dragged/panned with touch or left mouse drag, with clamped bounds.
 
 Intentionally not implemented yet:
 
@@ -53,7 +59,7 @@ The current structure establishes the future visual flow:
 
 `front entrance → lobby/reception → Ember core → room / café → future wing`
 
-The next milestone should refine **the first visible check-in interaction only** — key handoff, bell feedback and clearer reception framing — before adding more guests or staff.
+The next milestone should validate the 0.6 interaction visually, then refine **reception framing / bell feedback only** if needed before adding a second guest.
 
 
 ## Web preview
