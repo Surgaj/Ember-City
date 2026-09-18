@@ -8,9 +8,18 @@ on:
 
 permissions:
   contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
 
 jobs:
   build-and-publish:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
@@ -96,3 +105,15 @@ jobs:
           fi
           git commit -m "chore: publish Ember Inn Godot preview"
           git push origin HEAD:main
+
+      - name: Setup GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload complete Pages artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: /tmp/ember-inn-pages
+
+      - name: Deploy complete site to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
