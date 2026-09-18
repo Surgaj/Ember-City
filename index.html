@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
 <meta name="theme-color" content="#14241e">
-<title>EMBER INN — Living Machine</title>
+<title>EMBER INN — Visual Production</title>
 <style>
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body,main{margin:0;width:100%;height:100%;overflow:hidden;background:#14241e;color:#fff7e7;font-family:Inter,system-ui,-apple-system,sans-serif}
@@ -18,22 +18,22 @@ button{font:inherit;border:0;color:inherit}
 .brand small{display:block;font-size:7px;color:#9fb3aa}
 .cash{padding:8px 11px;border-radius:15px;text-align:right}
 .cash b{font-size:14px;color:#ffe09a}.cash small{display:block;font-size:7px;color:#9fb3aa}
-.objective{position:absolute;z-index:8;left:50%;bottom:max(11px,env(safe-area-inset-bottom));transform:translateX(-50%);width:min(350px,calc(100% - 24px));padding:7px 10px;border-radius:13px;text-align:center;font-size:9px;color:#c6d7cf;transition:.3s}
+.objective{position:absolute;z-index:8;left:50%;bottom:max(9px,env(safe-area-inset-bottom));transform:translateX(-50%);width:auto;max-width:78%;padding:6px 9px;border-radius:12px;text-align:center;font-size:8px;color:#c6d7cf;transition:.3s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .objective b{color:#ffd58f}.objective em{font-style:normal;color:#85dfa9;font-weight:900}
-.sheet{position:absolute;z-index:12;left:10px;right:10px;bottom:max(10px,env(safe-area-inset-bottom));padding:14px;border-radius:21px}
+.sheet{position:absolute;z-index:12;left:50%;transform:translateX(-50%);bottom:max(14px,env(safe-area-inset-bottom));width:min(248px,calc(100% - 24px));padding:10px;border-radius:15px}
 .sheet.hidden,.offline.hidden,.toast.hidden{display:none}
-.sheet .close{position:absolute;right:9px;top:9px;width:31px;height:31px;border-radius:50%;background:#ffffff12}
-.sheet h2{margin:0 38px 2px 0;font-size:18px}.sheet .sub{font-size:9px;color:#9fb2aa}
-.sheet .effect{margin:11px 0 8px;padding:9px;border-radius:12px;background:#ffffff0c;font-size:10px;color:#dbe8e1;line-height:1.4}
-.sheet .next{font-size:9px;color:#93c8a7;margin-bottom:9px}
-.sheet .upgrade{width:100%;padding:12px;border-radius:12px;background:linear-gradient(#ffd37a,#e99543);color:#3a250e;font-weight:900}
+.sheet .close{position:absolute;right:7px;top:7px;width:25px;height:25px;border-radius:50%;background:#ffffff10;font-size:12px}
+.sheet h2{margin:0 30px 1px 0;font-size:14px}.sheet .sub{font-size:8px;color:#9fb2aa}
+.sheet .effect{margin:7px 0 5px;padding:7px;border-radius:9px;background:#ffffff0a;font-size:8px;color:#dbe8e1;line-height:1.35}
+.sheet .next{font-size:8px;color:#93c8a7;margin-bottom:7px}
+.sheet .upgrade{width:100%;padding:9px;border-radius:10px;background:linear-gradient(#ffd37a,#e99543);color:#3a250e;font-weight:900;font-size:10px}
 .sheet .upgrade:disabled{opacity:.42;filter:grayscale(1)}
 .offline{position:absolute;z-index:14;top:72px;left:10px;right:10px;padding:11px;border-radius:15px;display:flex;gap:9px;align-items:center}
 .offline div{flex:1}.offline b{display:block;font-size:11px}.offline small{font-size:8px;color:#a9bab1}
 .offline button{padding:9px 11px;border-radius:10px;background:#86d5a5;color:#183221;font-weight:900}
 .toast{position:absolute;z-index:20;top:23%;left:50%;transform:translateX(-50%);padding:9px 13px;border-radius:13px;font-size:11px;font-weight:800;text-align:center;white-space:nowrap}
 @media(min-width:760px){
- .sheet{left:auto;right:18px;width:355px;bottom:18px}
+ .sheet{left:auto;right:18px;transform:none;width:245px;bottom:18px}
  .objective{bottom:18px}
 }
 </style>
@@ -42,7 +42,7 @@ button{font:inherit;border:0;color:inherit}
 <main>
 <canvas id="game"></canvas>
 <header class="hud">
-  <div class="brand"><span class="fire">🔥</span><div><b>EMBER INN</b><small>Living Machine · 0.3</small></div></div>
+  <div class="brand"><span class="fire">🔥</span><div><b>EMBER INN</b><small>Visual Production · 0.4</small></div></div>
   <div class="cash"><b>🪙 <span id="coins">90</span></b><small>caixa da pousada</small></div>
 </header>
 <div id="objective" class="objective"><b>✨ PRIMEIRA ENGRENAGEM</b> Observe o hóspede entrar, receber a chave e usar o quarto.</div>
@@ -61,7 +61,7 @@ button{font:inherit;border:0;color:inherit}
 (()=>{
 const c=document.querySelector('#game'),x=c.getContext('2d'),$=s=>document.querySelector(s);
 const U={coins:$('#coins'),objective:$('#objective'),sheet:$('#sheet'),close:$('#close'),stationName:$('#stationName'),stationLevel:$('#stationLevel'),stationEffect:$('#stationEffect'),stationNext:$('#stationNext'),upgrade:$('#upgrade'),upgradeCost:$('#upgradeCost'),offline:$('#offline'),offlineText:$('#offlineText'),collect:$('#collect'),toast:$('#toast')};
-const SIZE={w:600,h:700},SAVE_KEY='ember-inn-living-machine-03';
+const SIZE={w:600,h:620},SAVE_KEY='ember-inn-living-machine-03';
 const imgs={};
 [['citizens','assets/v04/citizens.webp'],['embers','assets/v04/embers.webp']].forEach(([k,u])=>{let im=new Image();im.decoding='async';im.src=u+'?v=inn03';imgs[k]=im});
 function sprite(im,idx,cell,dx,dy,dw,dh){if(im&&im.complete&&im.naturalWidth){x.drawImage(im,idx*cell,0,cell,cell,dx,dy,dw,dh);return true}return false}
@@ -75,10 +75,15 @@ const cook={role:'cook',x:410,y:232,tx:410,ty:232,ph:0,carry:null};
 const waiter={role:'waiter',x:430,y:270,tx:430,ty:270,ph:0,state:'idle',target:null,carry:null,sp:62};
 const cleaner={role:'cleaner',x:102,y:425,tx:102,ty:425,ph:0,state:'idle',target:null,carry:null,sp:55};
 function save(){s.last=Date.now();localStorage.setItem(SAVE_KEY,JSON.stringify(s))}
-function resize(){dpr=Math.min(devicePixelRatio||1,2);c.width=innerWidth*dpr;c.height=innerHeight*dpr;c.style.width=innerWidth+'px';c.style.height=innerHeight+'px';scale=Math.min(innerWidth/SIZE.w,innerHeight/SIZE.h);ox=(innerWidth-SIZE.w*scale)/2;oy=(innerHeight-SIZE.h*scale)/2}
+function resize(){dpr=Math.min(devicePixelRatio||1,2);c.width=innerWidth*dpr;c.height=innerHeight*dpr;c.style.width=innerWidth+'px';c.style.height=innerHeight+'px';let fit=Math.min(innerWidth/SIZE.w,innerHeight/SIZE.h);scale=innerWidth>760?fit*1.08:fit;ox=(innerWidth-SIZE.w*scale)/2;oy=(innerHeight-SIZE.h*scale)/2}
 addEventListener('resize',resize);resize();
 function rr(a,b,w,h,r,col){x.beginPath();x.roundRect(a,b,w,h,r);x.fillStyle=col;x.fill()}
 function line(a,b,c,d,w,col){x.strokeStyle=col;x.lineWidth=w;x.lineCap='round';x.beginPath();x.moveTo(a,b);x.lineTo(c,d);x.stroke()}
+function glow(cx,cy,r,a=.22){let g=x.createRadialGradient(cx,cy,4,cx,cy,r);g.addColorStop(0,'rgba(255,196,91,'+a+')');g.addColorStop(.55,'rgba(255,143,52,'+(a*.45)+')');g.addColorStop(1,'rgba(255,112,25,0)');x.fillStyle=g;x.beginPath();x.arc(cx,cy,r,0,7);x.fill()}
+function flame(cx,base,w,h,phase=0){let sway=Math.sin(performance.now()/240+phase)*w*.08;x.save();x.translate(sway,0);x.beginPath();x.moveTo(cx,base);x.bezierCurveTo(cx-w*.65,base-h*.28,cx-w*.48,base-h*.64,cx-w*.08,base-h*.9);x.bezierCurveTo(cx+w*.04,base-h*.68,cx+w*.52,base-h*.62,cx+w*.58,base-h*.3);x.bezierCurveTo(cx+w*.64,base-h*.08,cx+w*.3,base,cx,base);x.closePath();let g=x.createLinearGradient(cx,base-h,cx,base);g.addColorStop(0,'#fff1a1');g.addColorStop(.45,'#ffb13d');g.addColorStop(1,'#ef652b');x.fillStyle=g;x.fill();x.restore()}
+function miniFlame(cx,base,z=.5){x.save();x.scale(z,z);flame(cx/z,base/z,14,28,1.3);x.restore()}
+function drawBroom(px,py,z=1){x.save();x.translate(px,py);x.rotate(-.4);x.scale(z,z);x.strokeStyle='#77523a';x.lineWidth=3;x.beginPath();x.moveTo(0,-16);x.lineTo(0,11);x.stroke();x.fillStyle='#d8b56e';x.beginPath();x.moveTo(-8,10);x.lineTo(8,10);x.lineTo(5,21);x.lineTo(-5,21);x.closePath();x.fill();x.restore()}
+function upgradeSpark(px,py,id){if(s.coins<cost(id))return;let pulse=.55+.45*Math.sin(performance.now()/260);x.save();x.globalAlpha=.45+.45*pulse;x.shadowColor='#ffd36d';x.shadowBlur=12;x.strokeStyle='#ffd36d';x.lineWidth=2;x.beginPath();x.arc(px,py,11+3*pulse,0,7);x.stroke();x.fillStyle='#fff1ad';x.beginPath();x.arc(px,py,2.4,0,7);x.fill();x.restore()}
 function fmt(v){return v>=1000000?(v/1000000).toFixed(1)+'M':v>=1000?(v/1000).toFixed(1)+'K':Math.floor(v)}
 function toast(t){U.toast.textContent=t;U.toast.classList.remove('hidden');clearTimeout(toast.t);toast.t=setTimeout(()=>U.toast.classList.add('hidden'),1450)}
 function burst(px,py,n=18,col='#ffd16e'){for(let i=0;i<n;i++)fx.push({x:px,y:py,vx:(Math.random()-.5)*85,vy:-30-Math.random()*70,l:1,r:1.5+Math.random()*2.5,col})}
@@ -111,12 +116,13 @@ function checkProgress(){
 }
 function staffIndex(role){return{cleaner:0,cook:1,receptionist:2,guestA:5,guestB:3,waiter:4}[role]??5}
 function drawPerson(v,role,scaleP=1){
- let idx=staffIndex(role||v.role),sz=52*scaleP,bob=Math.sin(v.ph||0)*1.6,flip=(v.tx||v.x)<v.x;
+ let idx=staffIndex(role||v.role),sz=59*scaleP,bob=Math.sin(v.ph||0)*1.8,flip=(v.tx||v.x)<v.x;
  x.save();x.translate(v.x,v.y+bob);if(flip)x.scale(-1,1);
  if(!sprite(imgs.citizens,idx,52,-sz/2,-sz*.72,sz,sz)){x.fillStyle='#d99b6a';x.beginPath();x.arc(0,-8,12,0,7);x.fill()}
  x.restore();
- if(v.carry==='key')drawKey(v.x+10,v.y-30+bob,.85);
- if(v.carry==='tray')drawTray(v.x+12,v.y-26+bob,.85)
+ if(v.carry==='key')drawKey(v.x+12,v.y-34+bob,.92);
+ if(v.carry==='tray')drawTray(v.x+14,v.y-29+bob,.95);
+ if(v.carry==='broom')drawBroom(v.x+15,v.y-5+bob,.85)
 }
 function drawKey(px,py,z=1){x.save();x.translate(px,py);x.scale(z,z);x.strokeStyle='#e6b939';x.fillStyle='#f2ce56';x.lineWidth=3;x.beginPath();x.arc(0,0,5,0,7);x.stroke();x.beginPath();x.moveTo(5,0);x.lineTo(16,0);x.lineTo(16,5);x.moveTo(12,0);x.lineTo(12,4);x.stroke();x.restore()}
 function drawTray(px,py,z=1){x.save();x.translate(px,py);x.scale(z,z);x.fillStyle='#71452e';x.beginPath();x.ellipse(0,3,15,5,0,0,7);x.fill();x.fillStyle='#f4efe5';x.fillRect(-4,-8,8,10);x.fillStyle='#744d32';x.beginPath();x.arc(0,-8,4,0,7);x.fill();x.restore()}
@@ -126,14 +132,14 @@ function spawnGuest(){
  guest={id:++guestId,role:guestId%2?'guestA':'guestB',x:300,y:575,tx:300,ty:575,ph:0,sp:58,state:'enter',timer:0,room:null,carry:null,earned:0,serviceDone:false};
  guest.tx=205;guest.ty=430
 }
-function startKeyTransfer(g){g.state='keyTransfer';g.timer=.75;g.keyT=0}
+function startKeyTransfer(g){receptionist.carry=null;g.state='keyTransfer';g.timer=.75;g.keyT=0}
 function updateGuest(dt){
  if(!guest)return;let g=guest;g.ph+=dt*6;
  if(g.state==='enter'){
    if(move(g,dt))g.state='queue'
  }else if(g.state==='queue'){
    let r=roomAvailable();if(!r)return;
-   g.state='checkin';g.timer=checkinTime();receptionist.ph+=.1
+   g.state='checkin';g.timer=checkinTime();receptionist.carry='key';receptionist.ph+=.1
  }else if(g.state==='checkin'){
    g.timer-=dt;if(g.timer<=0)startKeyTransfer(g)
  }else if(g.state==='keyTransfer'){
@@ -185,11 +191,11 @@ function updateCleaner(dt){
  if(s.lvl.reception<2){cleaner.state='idle';return}
  if(cleaner.state==='idle'){
    let r=!room1.clean&&!room1.occupied?room1:(s.room2&&!room2.clean&&!room2.occupied?room2:null);
-   if(r){r.cleaning=true;cleaner.target=r.id;cleaner.state='toRoom';cleaner.tx=r.door.x-18;cleaner.ty=r.door.y+8}
+   if(r){r.cleaning=true;cleaner.target=r.id;cleaner.carry='broom';cleaner.state='toRoom';cleaner.tx=r.door.x-18;cleaner.ty=r.door.y+8}
  }else if(cleaner.state==='toRoom'){
    if(move(cleaner,dt)){cleaner.state='clean';cleaner.timer=Math.max(.9,2.9-(s.lvl.reception-2)*.55)}
  }else if(cleaner.state==='clean'){
-   cleaner.timer-=dt;if(cleaner.timer<=0){let r=cleaner.target==='room2'?room2:room1;r.clean=true;r.cleaning=false;burst(r.cx,r.cy,14,'#dff6e7');cleaner.target=null;cleaner.state='return';cleaner.tx=102;cleaner.ty=425}
+   cleaner.timer-=dt;if(cleaner.timer<=0){let r=cleaner.target==='room2'?room2:room1;r.clean=true;r.cleaning=false;burst(r.cx,r.cy,14,'#dff6e7');cleaner.target=null;cleaner.carry=null;cleaner.state='return';cleaner.tx=102;cleaner.ty=425}
  }else if(cleaner.state==='return'){
    if(move(cleaner,dt))cleaner.state='idle'
  }
@@ -201,86 +207,133 @@ function drawBackground(){
  x.fillStyle='#76b77f';x.beginPath();x.ellipse(300,505,350,220,0,0,7);x.fill()
 }
 function drawInn(){
- // shadow and main floor
- x.fillStyle='rgba(0,0,0,.18)';x.beginPath();x.moveTo(300,118);x.lineTo(558,255);x.lineTo(303,552);x.lineTo(42,382);x.closePath();x.fill();
- let floor=x.createLinearGradient(0,140,0,530);floor.addColorStop(0,'#c48754');floor.addColorStop(1,'#a96f45');x.fillStyle=floor;x.beginPath();x.moveTo(300,108);x.lineTo(550,245);x.lineTo(300,530);x.lineTo(50,375);x.closePath();x.fill();
- // compact paths / rugs
- x.fillStyle='#d8b68c';x.beginPath();x.moveTo(300,515);x.lineTo(266,493);x.lineTo(294,352);x.lineTo(327,360);x.closePath();x.fill();
- x.fillStyle='#c99876';rr(128,252,150,112,20,'#c99876');rr(327,196,145,105,20,'#c39a6a');rr(128,384,150,79,18,'#b98464');
- // back walls
- x.fillStyle='#76513d';x.beginPath();x.moveTo(300,108);x.lineTo(550,245);x.lineTo(550,191);x.lineTo(300,55);x.closePath();x.fill();
- x.fillStyle='#815944';x.beginPath();x.moveTo(50,375);x.lineTo(300,108);x.lineTo(300,55);x.lineTo(50,319);x.closePath();x.fill();
- x.strokeStyle='#3e2c25';x.lineWidth=3;x.beginPath();x.moveTo(300,55);x.lineTo(300,108);x.lineTo(550,245);x.moveTo(300,108);x.lineTo(50,375);x.stroke();
- // room partition
- x.fillStyle='#7b5541';x.fillRect(278,245,8,171);x.fillRect(95,365,185,8);
- // cafe half-wall
- x.fillStyle='#76513d';x.fillRect(382,278,128,7);
- // locked wing / room 2 divider
- if(!s.room2){x.fillStyle='#344d45';x.beginPath();x.moveTo(350,360);x.lineTo(505,302);x.lineTo(505,442);x.lineTo(388,497);x.closePath();x.fill();drawLockedDoor()}else{drawRoom2()}
+ // tight diorama shadow
+ x.fillStyle='rgba(0,0,0,.20)';x.beginPath();x.moveTo(300,102);x.lineTo(560,240);x.lineTo(304,548);x.lineTo(38,380);x.closePath();x.fill();
+ // timber floor
+ let floor=x.createLinearGradient(0,125,0,535);floor.addColorStop(0,'#ce925d');floor.addColorStop(1,'#a86b42');x.fillStyle=floor;x.beginPath();x.moveTo(300,92);x.lineTo(550,232);x.lineTo(300,530);x.lineTo(50,370);x.closePath();x.fill();
+ // plank lines give scale
+ x.save();x.globalAlpha=.12;for(let y=155;y<505;y+=24)line(82,y,520,y-85,2,'#583a2b');x.restore();
+ // lobby runner
+ x.fillStyle='#dfc295';x.beginPath();x.moveTo(300,514);x.lineTo(267,493);x.lineTo(288,354);x.lineTo(326,354);x.closePath();x.fill();
+ // rugs under recognizable stations
+ rr(112,235,175,133,22,'#c99d80');rr(336,177,171,118,22,'#c69a69');rr(120,376,167,92,18,'#b97f60');
+ // walls
+ x.fillStyle='#7a523d';x.beginPath();x.moveTo(300,92);x.lineTo(550,232);x.lineTo(550,174);x.lineTo(300,38);x.closePath();x.fill();
+ x.fillStyle='#865b43';x.beginPath();x.moveTo(50,370);x.lineTo(300,92);x.lineTo(300,38);x.lineTo(50,310);x.closePath();x.fill();
+ x.strokeStyle='#3a2923';x.lineWidth=4;x.beginPath();x.moveTo(300,38);x.lineTo(300,92);x.lineTo(550,232);x.moveTo(300,92);x.lineTo(50,370);x.stroke();
+ // timber beams
+ line(75,345,278,122,8,'#5c3e30');line(322,105,525,216,8,'#5c3e30');
+ // room wall and cafe divider
+ x.fillStyle='#754e3b';x.fillRect(280,229,9,188);x.fillRect(91,366,189,9);x.fillRect(378,281,139,8);
+ // picture/window
+ rr(87,190,57,43,4,'#5c4033');rr(93,196,45,31,3,'#8bb4b5');line(115,196,115,227,2,'#e6d4b4');line(93,211,138,211,2,'#e6d4b4');
+ if(!s.room2){x.fillStyle='#29443d';x.beginPath();x.moveTo(350,354);x.lineTo(510,294);x.lineTo(510,448);x.lineTo(390,503);x.closePath();x.fill();drawLockedDoor()}else{drawRoom2()}
 }
 function drawLockedDoor(){
- // a real door, not a floating lock
- rr(441,315,70,92,7,'#4e3b31');rr(449,323,54,76,5,'#2f2925');
- for(let i=0;i<4;i++)line(454,335+i*15,498,335+i*15,3,'#6d5847');
- x.fillStyle='#d7b66d';x.font='700 11px system-ui';x.textAlign='center';x.fillText('🔥 6',476,420);x.textAlign='left';
- if(emberProgress()>.55){x.save();x.globalAlpha=.22+.25*Math.sin(performance.now()/250);x.fillStyle='#ff9d3c';x.shadowColor='#ff9738';x.shadowBlur=26;x.fillRect(454,329,44,64);x.restore()}
+ rr(430,302,91,116,8,'#533d31');rr(438,310,75,100,6,'#2b2724');
+ // wooden slats and iron hinges
+ for(let i=0;i<5;i++)line(444,326+i*15,506,326+i*15,4,'#6f5847');
+ x.fillStyle='#b58b55';x.fillRect(446,319,5,83);x.fillRect(501,319,5,83);
+ x.fillStyle='#e0bb6d';x.beginPath();x.arc(497,360,4,0,7);x.fill();
+ // physical brass plaque
+ rr(455,411,42,24,6,'#6d5034');miniFlame(465,428,.33);x.fillStyle='#f3d28a';x.font='800 12px system-ui';x.textAlign='center';x.fillText('6',484,428);x.textAlign='left';
+ let p=emberProgress();if(p>.45){x.save();x.globalAlpha=.12+.42*p+.08*Math.sin(performance.now()/190);x.fillStyle='#ff9d3d';x.shadowColor='#ff8d2d';x.shadowBlur=30;x.fillRect(443,318,63,84);x.restore()}
+ if(p>.72){x.save();x.globalAlpha=.2+.2*Math.sin(performance.now()/210);line(335,350,441,355,3,'#ffb04f');x.restore()}
 }
-function drawRoom1(){drawBed(155,286,s.lvl.room1,room1);drawSideTable(235,286,s.lvl.room1)}
-function drawRoom2(){x.fillStyle='#c69b77';rr(360,343,154,118,18,'#c69b77');drawBed(430,390,s.lvl.room2,room2);drawSideTable(492,372,s.lvl.room2)}
+function drawRoom1(){rr(106,239,164,119,20,'#c79b7f');drawRug(155,334,112,34,'#8f665f');drawBed(157,284,s.lvl.room1,room1);drawSideTable(238,285,s.lvl.room1);drawWallLamp(115,250,room1.occupied);upgradeSpark(263,251,'room1')}
+function drawRoom2(){rr(356,338,163,128,20,'#c79b7f');drawRug(431,435,108,32,'#755f69');drawBed(430,389,s.lvl.room2,room2);drawSideTable(493,372,s.lvl.room2);drawWallLamp(491,344,room2.occupied);upgradeSpark(504,451,'room2')}
+function drawRug(cx,cy,w,h,col){x.fillStyle=col;x.beginPath();x.ellipse(cx,cy,w/2,h/2,0,0,7);x.fill();x.strokeStyle='#ead2b0';x.lineWidth=2;x.stroke()}
+function drawWallLamp(cx,cy,on){line(cx,cy,cx,cy+14,3,'#624635');x.fillStyle=on?'#ffd679':'#c69c62';x.shadowColor=on?'#ffc15a':'transparent';x.shadowBlur=on?18:0;x.beginPath();x.arc(cx,cy+18,6,0,7);x.fill();x.shadowBlur=0}
 function drawBed(cx,cy,lv,r){
- x.fillStyle='#6b4735';rr(cx-48,cy-24,96,65,10,'#6b4735');
- rr(cx-43,cy-19,86,52,10,lv>=3?'#c9878b':'#c69480');
- rr(cx-36,cy-15,72,19,9,'#f6ead7');
- if(lv>=2){rr(cx-42,cy+8,84,22,8,'#9f6859');x.fillStyle='#f2c263';x.beginPath();x.arc(cx+48,cy+28,5,0,7);x.fill()}
- if(lv>=3){line(cx-48,cy-24,cx-48,cy-44,5,'#684331');line(cx+48,cy-24,cx+48,cy-44,5,'#684331');line(cx-48,cy-44,cx+48,cy-44,5,'#684331')}
- if(!r.clean){x.save();x.translate(cx,cy+7);x.rotate(-.22);rr(-29,-7,58,22,7,'#a97768');x.restore();x.fillStyle='#7f5e4a';x.beginPath();x.ellipse(cx+39,cy+37,13,7,.2,0,7);x.fill();manualCleanPulse=.5+.5*Math.sin(performance.now()/180);if(s.lvl.reception<2){x.strokeStyle='rgba(255,235,170,'+(.2+.45*manualCleanPulse)+')';x.lineWidth=3;x.beginPath();x.ellipse(cx,cy+8,62,42,0,0,7);x.stroke()}}
+ // headboard / frame
+ rr(cx-52,cy-31,104,78,10,'#684432');rr(cx-48,cy-24,96,64,10,'#d0a18c');
+ line(cx-48,cy-24,cx-48,cy-43,5,'#61402f');line(cx+48,cy-24,cx+48,cy-43,5,'#61402f');line(cx-48,cy-43,cx+48,cy-43,5,'#61402f');
+ // mattress and two pillows
+ rr(cx-43,cy-18,86,52,10,lv>=3?'#bf7d83':'#c98f7d');
+ rr(cx-36,cy-15,32,17,8,'#f7ead6');rr(cx+4,cy-15,32,17,8,'#f7ead6');
+ // blanket
+ rr(cx-42,cy+6,84,27,8,lv>=2?'#8e625b':'#aa7165');
+ if(lv>=2){x.strokeStyle='#e3b765';x.lineWidth=2;for(let i=-30;i<=30;i+=15)line(cx+i,cy+8,cx+i+8,cy+30,2,'#d7ad66')}
+ if(lv>=3){x.fillStyle='#f0c56b';x.beginPath();x.arc(cx+51,cy+33,5,0,7);x.fill()}
+ if(r.occupied){
+   // guest is visually in the bed, not standing beside it
+   x.fillStyle='#d69b71';x.beginPath();x.arc(cx-18,cy-5,9,0,7);x.fill();
+   x.fillStyle='#fff3cf';x.font='800 12px system-ui';x.fillText('zZ',cx+26,cy-31)
+ }
+ if(!r.clean){
+   x.save();x.translate(cx,cy+9);x.rotate(-.17);rr(-35,-9,70,25,7,'#8e665f');x.restore();x.fillStyle='#6e5546';x.beginPath();x.ellipse(cx+40,cy+41,14,7,.2,0,7);x.fill();
+   manualCleanPulse=.5+.5*Math.sin(performance.now()/180);if(s.lvl.reception<2){x.strokeStyle='rgba(255,235,170,'+(.16+.38*manualCleanPulse)+')';x.lineWidth=3;x.beginPath();x.ellipse(cx,cy+9,62,43,0,0,7);x.stroke()}
+ }
 }
-function drawSideTable(cx,cy,lv){rr(cx-12,cy-4,24,22,5,'#79513b');if(lv>=2){x.fillStyle='#ffd57a';x.beginPath();x.arc(cx,cy-9,5,0,7);x.fill();line(cx,cy-4,cx,cy+4,2,'#5f4937')}if(lv>=3){x.fillStyle='#77a66d';x.beginPath();x.arc(cx+13,cy-5,6,0,7);x.fill()}}
+function drawSideTable(cx,cy,lv){rr(cx-14,cy-5,28,25,5,'#73503b');x.fillStyle='#a57652';x.fillRect(cx-10,cy+4,20,3);if(lv>=2){line(cx,cy-5,cx,cy-16,2,'#5b4435');x.fillStyle='#ffd77d';x.shadowColor='#ffc760';x.shadowBlur=10;x.beginPath();x.arc(cx,cy-20,6,0,7);x.fill();x.shadowBlur=0}if(lv>=3){x.fillStyle='#78a66d';x.beginPath();x.arc(cx+15,cy-8,7,0,7);x.fill()}}
 function drawReception(){
- let lv=s.lvl.reception,w=lv>=3?128:lv>=2?112:96;
- rr(140,392,w,48,10,lv>=3?'#8d5a3d':'#795039');rr(148,399,w-16,11,5,'#d5a16a');
- // register
- rr(188,378,33,20,5,'#3f4a45');rr(192,381,25,7,3,'#a8b4aa');
- if(registerPulse>0){x.fillStyle='#d4b475';x.fillRect(190,397,30,6)}
- // physical coin pile
- let stacks=Math.min(7,Math.floor(Math.log10(Math.max(10,s.coins))*2.4));
- for(let i=0;i<stacks;i++){x.fillStyle='#f3c84f';x.beginPath();x.ellipse(235+i*4,410-i*3,7,3,0,0,7);x.fill();x.strokeStyle='#a77d25';x.stroke()}
- if(lv>=2){x.fillStyle='#6d9c68';x.beginPath();x.arc(159,386,8,0,7);x.fill()}
- if(lv>=3){rr(132,446,117,15,7,'#8e5b3d');x.fillStyle='#e9d0a0';x.fillRect(145,450,88,4)}
+ let lv=s.lvl.reception,w=lv>=3?138:lv>=2?122:108;
+ // key rack behind the desk
+ rr(132,355,117,32,8,'#684632');x.fillStyle='#d7b779';x.font='800 8px system-ui';x.fillText('EMBER INN',157,367);
+ for(let i=0;i<4;i++){let kx=148+i*25;line(kx,374,kx,381,2,'#c9a251');x.beginPath();x.arc(kx,382,3,0,7);x.strokeStyle='#e7c455';x.stroke()}
+ // front desk
+ rr(128,390,w,54,11,lv>=3?'#8f593b':'#774b34');rr(136,397,w-16,12,5,'#d6a369');x.fillStyle='#5b3a2b';x.fillRect(136,428,w-16,8);
+ // brass bell
+ x.fillStyle='#efc75b';x.beginPath();x.arc(157,391,8,Math.PI,0);x.fill();x.fillRect(150,391,14,3);
+ // physical register; drawer actually opens on payment
+ rr(188,373,39,25,5,'#38433f');rr(193,378,29,8,3,'#aab5ae');
+ if(registerPulse>0){let open=registerPulse*14;rr(189,397,38,7+open*.25,3,'#6f533d');x.fillStyle='#f2cc58';for(let i=0;i<3;i++){x.beginPath();x.arc(197+i*9,402+open*.15,3,0,7);x.fill()}}
+ // coin stacks physically accumulate
+ let stacks=Math.min(8,Math.floor(Math.log10(Math.max(10,s.coins))*2.7));
+ for(let i=0;i<stacks;i++){x.fillStyle='#f3c84f';x.beginPath();x.ellipse(236+i*4,411-i*3,7,3,0,0,7);x.fill();x.strokeStyle='#a77d25';x.stroke()}
+ if(lv>=2){x.fillStyle='#6b9866';x.beginPath();x.arc(139,381,8,0,7);x.fill()}
+ if(lv>=3){rr(120,447,133,17,7,'#855338');x.fillStyle='#f0d3a2';x.fillRect(136,452,101,4)}
+ upgradeSpark(268,403,'reception')
 }
 function drawCafe(){
  let lv=s.lvl.cafe;
- rr(366,212,132,54,10,lv>=3?'#91603f':'#7e5439');rr(374,219,116,10,5,'#d6a36b');
- // coffee machine
- rr(397,183,44,35,7,'#505855');x.fillStyle='#b7c1bd';x.fillRect(403,190,32,10);x.fillStyle='#684733';x.beginPath();x.arc(419,213,5,0,7);x.fill();
- // steam
- x.fillStyle='rgba(255,255,255,.56)';for(let i=0;i<1+Math.min(3,lv);i++){x.beginPath();x.arc(408+i*9,181-(performance.now()/380+i*7)%16,4+i*.5,0,7);x.fill()}
- if(lv>=2){rr(452,183,34,27,6,'#c89b65');for(let i=0;i<3;i++){x.fillStyle=['#d76854','#efc066','#d98a5f'][i];x.beginPath();x.arc(460+i*8,190+i%2*5,4,0,7);x.fill()}}
- if(lv>=3){rr(378,164,102,17,7,'#6c4634');x.fillStyle='#ffe1a4';x.font='700 9px system-ui';x.textAlign='center';x.fillText('CAFÉ DA EMBER',429,176);x.textAlign='left'}
+ // back shelf
+ rr(361,153,137,27,6,'#6b4835');for(let i=0;i<5;i++){x.fillStyle=i%2?'#f0e0c5':'#b6d0c5';x.fillRect(372+i*23,159,10,10)}
+ // long coffee bar
+ rr(352,208,157,61,11,lv>=3?'#95603f':'#7a5037');rr(361,215,139,12,5,'#d7a36c');x.fillStyle='#5f3f30';x.fillRect(364,251,133,10);
+ // espresso machine
+ rr(382,177,58,42,7,'#4a5652');rr(389,183,44,11,3,'#b6c1bc');x.fillStyle='#2c3532';x.fillRect(394,197,34,10);line(400,207,400,218,2,'#aab8b2');line(421,207,421,218,2,'#aab8b2');
+ // cups and steam
+ x.fillStyle='rgba(255,255,255,.58)';for(let i=0;i<1+Math.min(3,lv);i++){x.beginPath();x.arc(395+i*10,174-(performance.now()/360+i*5)%15,3.5+i*.5,0,7);x.fill()}
+ x.fillStyle='#f4eee2';x.beginPath();x.ellipse(401,228,7,4,0,0,7);x.ellipse(420,228,7,4,0,0,7);x.fill();
+ // pastry display
+ rr(448,181,43,34,6,'#c7935d');x.fillStyle='#ead8b8';x.fillRect(453,187,33,5);for(let i=0;i<3;i++){x.fillStyle=['#d66a52','#efc26a','#bc7e51'][i];x.beginPath();x.arc(459+i*10,201,5,0,7);x.fill()}
+ // stools
+ for(let i=0;i<3;i++){let sx=374+i*48;line(sx,279,sx,293,4,'#674735');x.fillStyle='#b77751';x.beginPath();x.ellipse(sx,276,12,6,0,0,7);x.fill()}
+ if(lv>=3){rr(374,132,111,18,7,'#684431');x.fillStyle='#ffe2a4';x.font='800 9px system-ui';x.textAlign='center';x.fillText('CAFÉ DA EMBER',429,145);x.textAlign='left'}
+ upgradeSpark(510,231,'cafe')
 }
 function drawEmber(){
- let idx=Math.min(4,s.ember-1),cx=300,cy=349,size=88+idx*11,prog=emberProgress();
+ let idx=Math.min(4,s.ember-1),cx=300,cy=350,prog=emberProgress(),t=performance.now()/1000;
+ // light painted onto the room floor
+ glow(cx,cy-28,125+idx*12,.25+.04*idx);
+ // crossed logs
+ x.save();x.translate(cx,cy-4);x.rotate(.45);rr(-30,-5,60,10,5,'#65412c');x.rotate(-.9);rr(-30,-5,60,10,5,'#76503a');x.restore();
  // stone hearth
- for(let i=0;i<10;i++){let a=i/10*Math.PI*2;x.fillStyle=i%2?'#68594b':'#766454';x.beginPath();x.ellipse(cx+Math.cos(a)*38,cy+Math.sin(a)*16,13,7,a,0,7);x.fill()}
- x.save();x.globalCompositeOperation='lighter';let g=x.createRadialGradient(cx,cy-29,3,cx,cy-29,80+idx*12);g.addColorStop(0,'#fff2a88a');g.addColorStop(.42,'#ff96394a');g.addColorStop(1,'#ff6f1200');x.fillStyle=g;x.beginPath();x.arc(cx,cy-29,82+idx*10,0,7);x.fill();x.restore();
- x.save();x.shadowColor='#ff9134';x.shadowBlur=25+idx*7;if(!sprite(imgs.embers,idx,72,cx-size/2,cy-size*.78,size,size)){x.fillStyle='#ff8a38';x.beginPath();x.arc(cx,cy-29,25,0,7);x.fill()}x.restore();
- // progress ring is attached to the hearth itself
- x.strokeStyle='#ffffff20';x.lineWidth=4;x.beginPath();x.ellipse(cx,cy,54,22,0,0,7);x.stroke();x.strokeStyle='#ffd169';x.shadowColor='#ff973b';x.shadowBlur=6;x.beginPath();x.ellipse(cx,cy,54,22,0,-Math.PI/2,-Math.PI/2+Math.PI*2*prog);x.stroke();x.shadowBlur=0
+ for(let i=0;i<12;i++){let a=i/12*Math.PI*2;x.fillStyle=i%2?'#6e6053':'#806f5e';x.beginPath();x.ellipse(cx+Math.cos(a)*40,cy+Math.sin(a)*18,12,7,a,0,7);x.fill()}
+ // layered animated flame
+ x.save();x.shadowColor='#ff7f24';x.shadowBlur=26+idx*6;flame(cx,cy-10,28+idx*3,74+idx*8,0);x.globalAlpha=.78;flame(cx-4,cy-12,17+idx*2,48+idx*5,1.4);x.globalAlpha=.72;flame(cx+7,cy-13,12+idx,36+idx*4,2.7);x.restore();
+ // ember sparks
+ for(let i=0;i<3+idx;i++){let a=(t*(1.1+i*.07)+i*1.9)%1,px=cx+Math.sin(i*9+t*2)*20*a,py=cy-50-a*(45+idx*8);x.globalAlpha=1-a;x.fillStyle=i%2?'#ffd977':'#ff9b3e';x.beginPath();x.arc(px,py,2+(1-a),0,7);x.fill()}x.globalAlpha=1;
+ // progress lives on the hearth, not the HUD
+ x.strokeStyle='#ffffff1d';x.lineWidth=4;x.beginPath();x.ellipse(cx,cy+2,55,23,0,0,7);x.stroke();x.strokeStyle='#ffd169';x.shadowColor='#ff973b';x.shadowBlur=7;x.beginPath();x.ellipse(cx,cy+2,55,23,0,-Math.PI/2,-Math.PI/2+Math.PI*2*prog);x.stroke();x.shadowBlur=0
 }
 function drawEntrance(){
- // door / front step
- rr(271,515,58,19,7,'#876049');rr(278,502,44,27,7,'#564238');x.fillStyle='#f2cb7c';x.beginPath();x.arc(315,516,3,0,7);x.fill()
+ // front door, welcome mat and little lanterns
+ rr(266,503,68,29,7,'#5a4337');rr(274,481,52,45,6,'#6c4937');x.fillStyle='#f2cb7c';x.beginPath();x.arc(315,504,3,0,7);x.fill();
+ rr(275,532,50,13,5,'#7c5a42');x.fillStyle='#e4cf9f';x.font='800 7px system-ui';x.textAlign='center';x.fillText('WELCOME',300,541);x.textAlign='left';
+ for(let sgn of[-1,1]){let lx=300+sgn*47;line(lx,498,lx,517,3,'#5d4537');x.fillStyle='#ffd879';x.shadowColor='#ffc45c';x.shadowBlur=12;x.beginPath();x.arc(lx,494,6,0,7);x.fill();x.shadowBlur=0}
 }
 function drawStaff(){
  drawPerson(receptionist,'receptionist',1.05);drawPerson(cook,'cook',1.0);drawPerson(waiter,'waiter',1.0);
  if(s.lvl.reception>=2){drawPerson(cleaner,'cleaner',1.0);if(s.lvl.reception>=3){rr(cleaner.x-28,cleaner.y+8,31,19,6,'#7c6048');x.fillStyle='#9bc7b6';x.beginPath();x.arc(cleaner.x-20,cleaner.y+28,5,0,7);x.arc(cleaner.x-1,cleaner.y+28,5,0,7);x.fill()}}
 }
 function drawGuest(){
- if(!guest)return;drawPerson(guest,guest.role,1.05);
+ if(!guest)return;
+ if(guest.state!=='rest')drawPerson(guest,guest.role,1.12);
  if(guest.state==='keyTransfer'){
-   let t=guest.keyT||0,ax=194,ay=382,bx=guest.x+10,by=guest.y-31,q=1-(1-t)*(1-t);drawKey(ax+(bx-ax)*q,ay+(by-ay)*q,1)
+   let t=guest.keyT||0,ax=194,ay=382,bx=guest.x+12,by=guest.y-34,q=1-(1-t)*(1-t);drawKey(ax+(bx-ax)*q,ay+(by-ay)*q,1.08)
  }
- if(guest.state==='rest'){let r=guest.room==='room2'?room2:room1;x.fillStyle='#fff4cf';x.font='700 12px system-ui';x.fillText('zZ',r.cx+26,r.cy-28)}
 }
 function drawMachineHints(){
  // service handoff is shown with physical trays/keys; only the future wing gets a physical plaque.
@@ -301,7 +354,7 @@ function update(dt){
  updateGuest(dt);updateWaiter(dt);updateCleaner(dt);
  fx.forEach(p=>{p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=60*dt;p.l-=dt*.9});fx=fx.filter(p=>p.l>0);
  hearts.forEach(h=>{h.t+=dt*1.15;h.l=1-h.t});hearts=hearts.filter(h=>h.t<1);
- U.coins.textContent=fmt(s.coins);U.objective.innerHTML=objective();if(selected)U.upgrade.disabled=s.coins<cost(selected)
+ U.coins.textContent=fmt(s.coins);U.objective.innerHTML=objective();U.objective.style.opacity=s.served>=2?'.35':'1';if(selected)U.upgrade.disabled=s.coins<cost(selected)
 }
 function stationAt(px,py){
  if(px>130&&px<275&&py>365&&py<455)return'reception';
@@ -317,9 +370,9 @@ function openStation(id){
  if(id==='locked'){toast('🔥 A luz da Ember ainda não alcança esta porta.');return}
  if((id==='room1'||id==='room2')){let r=id==='room2'?room2:room1;if(!r.clean&&!r.occupied&&s.lvl.reception<2){r.cleaning=true;burst(r.cx,r.cy,16,'#eff8e7');setTimeout(()=>{r.clean=true;r.cleaning=false;toast('Quarto limpo ✨')},650);return}}
  selected=id;let lv=s.lvl[id],k=cost(id);U.sheet.classList.remove('hidden');U.stationName.textContent={reception:'Recepção',room1:'Quarto',room2:'Quarto da Ala Nova',cafe:'Café da Ember'}[id];U.stationLevel.textContent='Nível '+lv;
- if(id==='reception'){U.stationEffect.textContent=lv===1?'Check-in manual e limpeza por toque.':'Camareira automática'+(lv>=3?' com carrinho e check-in acelerado.':'.');U.stationNext.textContent=lv===1?'Próximo: contrata camareira e aumenta o balcão.':'Próximo: atendimento mais rápido e visual mais rico.'}
- if(id==='room1'||id==='room2'){U.stationEffect.textContent='Diária: 🪙 '+roomPay(id)+' · estadia '+stayTime(id).toFixed(1)+'s.';U.stationNext.textContent='Próximo: cama melhor, decoração e diária maior.'}
- if(id==='cafe'){U.stationEffect.textContent='O garçom leva uma bandeja física até o quarto. Serviço: '+serviceTime().toFixed(1)+'s.';U.stationNext.textContent='Próximo: máquina melhor, vitrine e entrega mais rápida.'}
+ if(id==='reception'){U.stationEffect.textContent=lv===1?'Check-in + limpeza manual.':'Camareira automática'+(lv>=3?' + carrinho.':'.');U.stationNext.textContent=lv===1?'Próximo: camareira + balcão maior.':'Próximo: atendimento mais rápido.'}
+ if(id==='room1'||id==='room2'){U.stationEffect.textContent='🪙 '+roomPay(id)+' por estadia · '+stayTime(id).toFixed(1)+'s';U.stationNext.textContent='Próximo: cama + decoração + diária.'}
+ if(id==='cafe'){U.stationEffect.textContent='☕ Bandeja até o quarto · '+serviceTime().toFixed(1)+'s';U.stationNext.textContent='Próximo: máquina + vitrine + velocidade.'}
  U.upgradeCost.textContent='🪙 '+fmt(k);U.upgrade.disabled=s.coins<k
 }
 U.close.onclick=()=>{selected=null;U.sheet.classList.add('hidden')};
