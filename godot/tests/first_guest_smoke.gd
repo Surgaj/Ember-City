@@ -22,6 +22,8 @@ func _run() -> void:
 	var door := scene.get_node_or_null("InteriorProps/BedroomDoorLeaf") as MeshInstance3D
 	var receptionist := scene.get_node_or_null("Actors/Receptionist") as Node3D
 	var flame := scene.get_node_or_null("InteriorProps/EmberFlameLow") as MeshInstance3D
+	var guest_key := scene.get_node_or_null("Actors/TestGuest/VisualRoot/CarryAnchor") as Node3D
+	var camera := scene.get_node_or_null("IsometricCamera") as Camera3D
 
 	if guest == null:
 		_fail("TestGuest was not spawned")
@@ -37,6 +39,25 @@ func _run() -> void:
 		return
 	if flame == null:
 		_fail("Ember flame was not created")
+		return
+	if guest_key == null:
+		_fail("Guest physical key anchor is missing")
+		return
+	if camera == null:
+		_fail("Isometric camera is missing")
+		return
+
+	var camera_start_position := camera.position
+	scene.call("_pan_camera", Vector2(80.0, 0.0))
+	await process_frame
+	if camera.position.distance_to(camera_start_position) < 0.05:
+		_fail("Camera pan did not move the isometric camera")
+		return
+
+	receptionist.call("serve_checkin")
+	await create_timer(0.95).timeout
+	if not guest_key.visible:
+		_fail("Receptionist did not hand the physical key to the guest")
 		return
 
 	var flame_start_position := flame.position
@@ -58,7 +79,7 @@ func _run() -> void:
 		_fail("Ember flame did not visibly animate")
 		return
 
-	print("FIRST GUEST PASS: moved %.3f meters, receptionist present, Ember animated" % moved_distance)
+	print("FIRST GUEST PASS: movement, key handoff, camera pan and Ember animation verified (%.3f m)" % moved_distance)
 	quit(0)
 
 
