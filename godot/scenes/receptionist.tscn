@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=3]
+[gd_scene load_steps=9 format=3]
 
 [ext_resource type="Script" path="res://scripts/receptionist.gd" id="1_receptionist"]
 
@@ -28,6 +28,22 @@ rings = 6
 albedo_color = Color(0.93, 0.82, 0.63, 1)
 roughness = 0.95
 
+[sub_resource type="StandardMaterial3D" id="KeyMaterial"]
+albedo_color = Color(0.94, 0.66, 0.18, 1)
+metallic = 0.35
+roughness = 0.42
+
+[sub_resource type="BoxMesh" id="KeyShaftMesh"]
+material = SubResource("KeyMaterial")
+size = Vector3(0.06, 0.06, 0.34)
+
+[sub_resource type="CylinderMesh" id="KeyHeadMesh"]
+material = SubResource("KeyMaterial")
+top_radius = 0.11
+bottom_radius = 0.11
+height = 0.05
+radial_segments = 12
+
 [node name="Receptionist" type="Node3D"]
 script = ExtResource("1_receptionist")
 
@@ -49,3 +65,16 @@ mesh = SubResource("BodyMesh")
 scale = Vector3(0.62, 0.68, 0.18)
 material_override = SubResource("ApronMaterial")
 cast_shadow = 1
+
+[node name="KeyAnchor" type="Node3D" parent="VisualRoot"]
+position = Vector3(0.32, 0.86, -0.03)
+visible = false
+
+[node name="KeyShaft" type="MeshInstance3D" parent="VisualRoot/KeyAnchor"]
+mesh = SubResource("KeyShaftMesh")
+rotation_degrees = Vector3(0, 0, 90)
+
+[node name="KeyHead" type="MeshInstance3D" parent="VisualRoot/KeyAnchor"]
+position = Vector3(0.0, 0.17, 0.0)
+mesh = SubResource("KeyHeadMesh")
+rotation_degrees = Vector3(90, 0, 0)
