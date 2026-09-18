@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#14233b">
+<title>EMBER CITY — Primeira Chama</title>
+<style>
+:root{--bg:#101a2d;--panel:rgba(12,24,42,.88);--text:#fff7e7;--muted:#aebbd0;--gold:#ffc15d;--heat:#ff7938}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body,#app,main{margin:0;width:100%;height:100%;overflow:hidden;background:var(--bg);font-family:ui-rounded,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text)}
+button{font:inherit;color:inherit;border:0;cursor:pointer}
+canvas{display:block;width:100%;height:100%;touch-action:none;background:linear-gradient(#172843,#101a2c)}
+.top{position:absolute;z-index:10;top:max(10px,env(safe-area-inset-top));left:10px;right:10px;display:flex;gap:7px;justify-content:space-between;pointer-events:none}
+.card{pointer-events:auto;background:var(--panel);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.09);box-shadow:0 10px 30px rgba(0,0,0,.28);border-radius:17px;padding:8px 10px;display:flex;align-items:center;gap:8px;min-height:52px}
+.brand{max-width:160px}.brand strong{display:block;font-size:12px;letter-spacing:.08em}.brand small,.res small{display:block;color:var(--muted);font-size:9px}.res{min-width:91px;justify-content:center}.res>b{font-size:14px}.ico{font-size:21px}
+.objective{position:absolute;z-index:8;right:12px;top:76px;width:190px;background:rgba(17,30,50,.8);border:1px solid rgba(255,255,255,.08);border-radius:15px;padding:10px;backdrop-filter:blur(9px);font-size:10px;line-height:1.35;color:#c8d2df}.objective b{display:block;color:#ffd496;margin-bottom:3px}
+.ember{position:absolute;z-index:8;left:50%;bottom:92px;transform:translateX(-50%);width:min(360px,calc(100% - 28px));background:var(--panel);border:1px solid rgba(255,255,255,.09);border-radius:17px;padding:10px 13px;box-shadow:0 10px 30px rgba(0,0,0,.28)}
+.ember .row{display:flex;justify-content:space-between;font-size:12px}.ember .row b{color:#ffd496}.bar{height:8px;background:rgba(255,255,255,.11);border-radius:99px;margin:7px 0 5px;overflow:hidden}.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#ffc25d,#ff6f36);border-radius:inherit;transition:width .25s}.ember small{color:var(--muted)}
+.nav{position:absolute;z-index:9;bottom:max(10px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);display:flex;gap:5px;background:rgba(9,19,34,.91);padding:6px;border-radius:17px;border:1px solid rgba(255,255,255,.08)}
+.nav button{width:78px;height:56px;background:transparent;border-radius:12px;font-size:10px;color:#d4dbe6}.nav span{display:block;font-size:19px}
+.panel{position:absolute;z-index:20;left:12px;right:12px;bottom:max(16px,env(safe-area-inset-bottom));background:rgba(24,38,60,.94);backdrop-filter:blur(18px);border:1px solid rgba(255,255,255,.1);border-radius:23px;padding:18px;box-shadow:0 22px 70px rgba(0,0,0,.48)}
+.hidden{display:none!important}.close{position:absolute;right:11px;top:9px;width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.07);font-size:20px}
+.title{display:flex;align-items:center;gap:11px}.title .big{font-size:32px}.title h2{margin:0;font-size:19px}.title p{margin:2px 0 0;color:var(--muted);font-size:11px}
+.stats{display:flex;gap:8px;margin:15px 0}.stats div{flex:1;background:rgba(255,255,255,.055);border-radius:13px;padding:10px}.stats span{display:block;color:var(--muted);font-size:9px}.stats b{font-size:12px}
+.primary{width:100%;padding:13px;border-radius:13px;background:linear-gradient(#ffc266,#ed9141);color:#35210d;font-weight:900}.primary:disabled{filter:grayscale(.7);opacity:.45}
+.offline{position:absolute;z-index:18;left:12px;right:12px;top:77px;background:rgba(24,38,60,.95);border:1px solid rgba(255,255,255,.1);border-radius:17px;padding:12px;display:flex;gap:10px;align-items:center}.offline div:nth-child(2){flex:1}.offline b{display:block;font-size:12px}.offline small{display:block;color:var(--muted);font-size:10px;margin-top:2px}.offline button{background:#78d59d;color:#12331f;font-weight:900;border-radius:11px;padding:10px 12px}
+.toast{position:absolute;z-index:30;left:50%;top:28%;transform:translateX(-50%);background:rgba(8,16,28,.94);border:1px solid rgba(255,255,255,.11);border-radius:15px;padding:11px 16px;font-weight:800;max-width:82%;text-align:center}
+@media(min-width:760px){.panel{left:auto;right:20px;width:360px;bottom:20px}.ember{bottom:20px}.nav{left:20px;transform:none}.objective{right:20px;top:90px;width:240px}}
+</style>
+</head>
+<body>
+<div id="app"><header class="top">
+<div class="card brand"><span class="ico">🔥</span><div><strong>EMBER CITY</strong><small>Primeira Chama · MVP 0.1</small></div></div>
+<div class="card res"><span class="ico">🪙</span><div><b id="coins">0</b><small id="coinsRate">+0/min</small></div></div>
+<div class="card res"><span class="ico">🔥</span><div><b id="heat">0</b><small id="heatRate">+0/min</small></div></div>
+</header>
+<main><canvas id="game"></canvas>
+<div id="toast" class="toast hidden"></div>
+<div id="offline" class="offline hidden"><div class="ico">🧰</div><div><b>Sua cidade continuou trabalhando!</b><small id="offlineText"></small></div><button id="collect">Coletar</button></div>
+<div id="objective" class="objective"><b>PRIMEIRO OBJETIVO</b>Produza Calor e alimente a Ember até ela iluminar a área adormecida.</div>
+<section id="panel" class="panel hidden"><button id="close" class="close">×</button><div class="title"><span id="bIcon" class="big">🏠</span><div><h2 id="bName">Casa</h2><p id="bLevel">Nível 1</p></div></div><div class="stats"><div><span>PRODUÇÃO</span><b id="bProd"></b></div><div><span>PRÓXIMO NÍVEL</span><b id="bNext"></b></div></div><button id="upgrade" class="primary">Melhorar · 🪙 <span id="cost"></span></button></section>
+<section class="ember"><div class="row"><span>🔥 Ember</span><b id="emberLevel">Nível 1</b></div><div class="bar"><i id="progress"></i></div><small><span id="emberNow">0</span> / <span id="emberGoal">160</span> Calor</small></section>
+<nav class="nav"><button id="focus"><span>🔥</span>Ember</button><button id="hint"><span>✨</span>Objetivo</button><button id="reset"><span>↺</span>Reset</button></nav>
+</main></div>
+<script>
+(function(){
+var c=document.getElementById('game'),x=c.getContext('2d'),D=function(id){return document.getElementById(id)},ui={coins:D('coins'),coinsRate:D('coinsRate'),heat:D('heat'),heatRate:D('heatRate'),emberLevel:D('emberLevel'),progress:D('progress'),emberNow:D('emberNow'),emberGoal:D('emberGoal'),panel:D('panel'),bIcon:D('bIcon'),bName:D('bName'),bLevel:D('bLevel'),bProd:D('bProd'),bNext:D('bNext'),cost:D('cost'),upgrade:D('upgrade'),close:D('close'),offline:D('offline'),offlineText:D('offlineText'),collect:D('collect'),toast:D('toast'),objective:D('objective'),focus:D('focus'),hint:D('hint'),reset:D('reset')};
+var K='ember-city-mvp-01-pages',GOAL=160,B={house:{n:'Casa',i:'🏠',a:'#d9895d',r:'#8d4d39',coin:14,heat:10,cost:70},workshop:{n:'Oficina',i:'⚙️',a:'#7f98a8',r:'#42566b',coin:24,heat:14,cost:120},market:{n:'Mercado',i:'🧺',a:'#e6b667',r:'#a65447',coin:38,heat:18,cost:180}};
+function fresh(){return{coins:260,heat:0,ember:1,expanded:false,lv:{house:1,workshop:1,market:1},last:Date.now(),pending:null,hints:true}}
+function load(){try{var s=localStorage.getItem(K);return s?Object.assign(fresh(),JSON.parse(s)):fresh()}catch(e){return fresh()}}
+var s=load(),selected=null,last=performance.now(),cam={x:0,y:0,z:1},drag=null,pulse=0,parts=[],world={w:1200,h:900,e:{x:590,y:450}},bs=[{id:'house',x:365,y:315,w:145,h:105},{id:'workshop',x:315,y:590,w:165,h:110},{id:'market',x:730,y:545,w:155,h:108}],cit=[];
+for(var i=0;i<6;i++)cit.push({x:590+Math.cos(i)*120,y:450+Math.sin(i)*100,tx:590,ty:450,sp:20+Math.random()*14,h:i});
+function save(){s.last=Date.now();localStorage.setItem(K,JSON.stringify(s))}
+function rate(id,next){var q=B[id],l=s.lv[id]+(next?1:0),m=Math.pow(1.38,l-1);return{coin:q.coin*m,heat:q.heat*m}}
+function rates(){var a={coin:0,heat:0};bs.forEach(function(b){var r=rate(b.id);a.coin+=r.coin;a.heat+=r.heat});return a}
+function cost(id){return Math.floor(B[id].cost*Math.pow(1.62,s.lv[id]-1))}
+function goal(){return GOAL*Math.pow(2,s.ember-1)}
+function fmt(v){if(v>=1e6)return(v/1e6).toFixed(1)+'M';if(v>=1e3)return(v/1e3).toFixed(1)+'K';return Math.floor(v).toString()}
+function resize(){var d=Math.min(devicePixelRatio||1,2);c.width=Math.floor(innerWidth*d);c.height=Math.floor(innerHeight*d);c.style.width=innerWidth+'px';c.style.height=innerHeight+'px';x.setTransform(d,0,0,d,0,0);cam.z=Math.max(.58,Math.min(1.05,innerWidth/900));cam.x=(innerWidth-world.w*cam.z)/2;cam.y=(innerHeight-world.h*cam.z)/2+35}
+addEventListener('resize',resize);resize();
+function wpos(a,b){return{x:(a-cam.x)/cam.z,y:(b-cam.y)/cam.z}}
+function hit(p){for(var i=0;i<bs.length;i++){var b=bs[i];if(p.x>b.x-b.w/2&&p.x<b.x+b.w/2&&p.y>b.y-b.h/2&&p.y<b.y+b.h/2)return b}return null}
+c.addEventListener('pointerdown',function(e){drag={x:e.clientX,y:e.clientY,cx:cam.x,cy:cam.y,m:false};c.setPointerCapture(e.pointerId)});
+c.addEventListener('pointermove',function(e){if(!drag)return;var dx=e.clientX-drag.x,dy=e.clientY-drag.y;if(Math.hypot(dx,dy)>5)drag.m=true;cam.x=drag.cx+dx;cam.y=drag.cy+dy});
+c.addEventListener('pointerup',function(e){if(!drag)return;if(!drag.m){var p=wpos(e.clientX,e.clientY),b=hit(p);if(b)openB(b.id);else if(Math.hypot(p.x-world.e.x,p.y-world.e.y)<90)toast('A Ember sente o calor da cidade 🔥')}drag=null});
+function openB(id){selected=id;var q=B[id],r=rate(id),rn=rate(id,true);ui.bIcon.textContent=q.i;ui.bName.textContent=q.n;ui.bLevel.textContent='Nível '+s.lv[id];ui.bProd.textContent='🪙 '+fmt(r.coin)+'/min · 🔥 '+fmt(r.heat)+'/min';ui.bNext.textContent='🪙 '+fmt(rn.coin)+'/min · 🔥 '+fmt(rn.heat)+'/min';ui.cost.textContent=fmt(cost(id));ui.upgrade.disabled=s.coins<cost(id);ui.panel.classList.remove('hidden')}
+ui.close.onclick=function(){selected=null;ui.panel.classList.add('hidden')};
+ui.upgrade.onclick=function(){if(!selected)return;var k=cost(selected);if(s.coins<k){toast('Moedas insuficientes 🪙');return}s.coins-=k;s.lv[selected]++;var b=bs.filter(function(v){return v.id===selected})[0];burst(b.x,b.y,'#ffd37a');toast(B[selected].n+' melhorado!');save();openB(selected);paintUI()};
+ui.focus.onclick=function(){cam.x=innerWidth/2-world.e.x*cam.z;cam.y=innerHeight/2-world.e.y*cam.z+20;toast('Ember centralizada 🔥')};
+ui.hint.onclick=function(){s.hints=!s.hints;ui.objective.style.display=s.hints?'block':'none';save()};
+ui.reset.onclick=function(){if(confirm('Recomeçar o protótipo do zero?')){localStorage.removeItem(K);location.reload()}};
+function toast(t){ui.toast.textContent=t;ui.toast.classList.remove('hidden');clearTimeout(toast.t);toast.t=setTimeout(function(){ui.toast.classList.add('hidden')},1800)}
+function burst(px,py,col){for(var i=0;i<22;i++)parts.push({x:px,y:py,vx:(Math.random()-.5)*90,vy:(Math.random()-.5)*90-30,l:1,c:col})}
+function check(){var g=goal();if(s.heat>=g){s.heat-=g;s.ember++;if(!s.expanded){s.expanded=true;pulse=1;toast('Nova área iluminada! ✨');for(var i=0;i<70;i++)parts.push({x:world.e.x,y:world.e.y,vx:70+Math.random()*140,vy:(Math.random()-.5)*160,l:1.4,c:'#ffbd61'})}else toast('Ember alcançou o nível '+s.ember+'!');save()}}
+function offline(){var sec=Math.max(0,(Date.now()-s.last)/1000);if(sec<20)return;sec=Math.min(sec,28800);var r=rates();s.pending={coins:r.coin*(sec/60)*.75,heat:r.heat*(sec/60)*.75};ui.offlineText.textContent='+'+fmt(s.pending.coins)+' moedas · +'+fmt(s.pending.heat)+' calor';ui.offline.classList.remove('hidden')}
+ui.collect.onclick=function(){if(!s.pending)return;s.coins+=s.pending.coins;s.heat+=s.pending.heat;s.pending=null;ui.offline.classList.add('hidden');toast('Produção offline coletada!');check();save()};
+function paintUI(){var r=rates();ui.coins.textContent=fmt(s.coins);ui.coinsRate.textContent='+'+fmt(r.coin)+'/min';ui.heat.textContent=fmt(s.heat);ui.heatRate.textContent='+'+fmt(r.heat)+'/min';ui.emberLevel.textContent='Nível '+s.ember;ui.emberNow.textContent=fmt(s.heat);ui.emberGoal.textContent=fmt(goal());ui.progress.style.width=Math.min(100,s.heat/goal()*100)+'%';if(selected)ui.upgrade.disabled=s.coins<cost(selected)}
+function update(dt){var r=rates();s.coins+=r.coin*dt/60;s.heat+=r.heat*dt/60;check();cit.forEach(function(v){var dx=v.tx-v.x,dy=v.ty-v.y,d=Math.hypot(dx,dy);if(d<8){var spots=bs.map(function(b){return{x:b.x+(Math.random()-.5)*80,y:b.y+(Math.random()-.5)*60}});spots.push({x:590+(Math.random()-.5)*160,y:450+(Math.random()-.5)*140});var p=spots[Math.floor(Math.random()*spots.length)];v.tx=p.x;v.ty=p.y}else{v.x+=dx/d*v.sp*dt;v.y+=dy/d*v.sp*dt}});parts.forEach(function(p){p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=35*dt;p.l-=dt});parts=parts.filter(function(p){return p.l>0});pulse=Math.max(0,pulse-dt*.35)}
+function rr(px,py,w,h,r,col){x.beginPath();x.roundRect(px,py,w,h,r);x.fillStyle=col;x.fill()}
+function tree(px,py,z){x.save();x.translate(px,py);x.scale(z,z);x.fillStyle='#4d3423';x.fillRect(-5,6,10,30);x.fillStyle='#376b4e';x.beginPath();x.arc(0,0,27,0,Math.PI*2);x.arc(-18,7,18,0,Math.PI*2);x.arc(18,7,19,0,Math.PI*2);x.fill();x.restore()}
+function building(b){var q=B[b.id],l=s.lv[b.id];x.save();x.translate(b.x,b.y);x.fillStyle='rgba(0,0,0,.2)';x.beginPath();x.ellipse(5,36,b.w*.45,26,0,0,Math.PI*2);x.fill();rr(-b.w/2,-b.h/2,b.w,b.h,18,q.a);x.fillStyle=q.r;x.beginPath();x.moveTo(-b.w*.56,-b.h*.28);x.lineTo(0,-b.h*.72);x.lineTo(b.w*.56,-b.h*.28);x.lineTo(b.w*.42,-b.h*.08);x.lineTo(-b.w*.42,-b.h*.08);x.closePath();x.fill();x.fillStyle='#ffd98b';for(var j=-1;j<=1;j++)x.fillRect(j*34-8,2,16,22);x.fillStyle='#5a3727';x.fillRect(-11,23,22,30);x.font='28px system-ui';x.fillText(q.i,-16,-22);rr(-47,b.h*.52,94,28,10,'rgba(10,16,26,.78)');x.fillStyle='#fff';x.font='700 13px system-ui';x.textAlign='center';x.fillText(q.n+' · Nv.'+l,0,b.h*.52+18);x.textAlign='start';x.restore()}
+function ember(){var t=performance.now()/500;x.save();x.translate(590,450);x.fillStyle='rgba(255,169,76,.16)';x.beginPath();x.arc(0,0,86+Math.sin(t)*6,0,Math.PI*2);x.fill();x.fillStyle='#b9a17e';x.beginPath();x.arc(0,20,58,0,Math.PI*2);x.fill();x.fillStyle='#755942';x.beginPath();x.arc(0,20,40,0,Math.PI*2);x.fill();var g=x.createRadialGradient(0,-5,4,0,-5,70);g.addColorStop(0,'#fffbe0');g.addColorStop(.18,'#ffd466');g.addColorStop(.55,'#ff803d');g.addColorStop(1,'rgba(255,92,31,0)');x.fillStyle=g;x.beginPath();x.arc(0,-12,70,0,Math.PI*2);x.fill();x.fillStyle='#ffb341';x.beginPath();x.moveTo(0,-80);x.bezierCurveTo(58,-25,35,20,0,28);x.bezierCurveTo(-42,10,-52,-32,-8,-70);x.bezierCurveTo(-2,-50,15,-42,0,-80);x.fill();x.fillStyle='#fff3ae';x.beginPath();x.moveTo(0,-47);x.bezierCurveTo(25,-17,18,10,0,17);x.bezierCurveTo(-20,3,-19,-18,0,-47);x.fill();x.restore()}
+function citizen(v){x.save();x.translate(v.x,v.y);x.fillStyle='rgba(0,0,0,.18)';x.beginPath();x.ellipse(0,12,10,5,0,0,Math.PI*2);x.fill();x.fillStyle=['#e87461','#5f9fd1','#7fb36b','#c486d7','#d5a64b','#6db7ac'][v.h%6];x.fillRect(-7,-4,14,18);x.fillStyle='#f1c49e';x.beginPath();x.arc(0,-9,8,0,Math.PI*2);x.fill();x.fillStyle='#3b2a24';x.beginPath();x.arc(0,-12,8,Math.PI,Math.PI*2);x.fill();x.restore()}
+function worldDraw(){x.save();x.translate(cam.x,cam.y);x.scale(cam.z,cam.z);x.fillStyle='#294d43';x.beginPath();x.ellipse(570,470,520,360,0,0,Math.PI*2);x.fill();x.fillStyle='#24453e';x.beginPath();x.ellipse(570,470,470,320,0,0,Math.PI*2);x.fill();x.strokeStyle='#2d6d88';x.lineWidth=80;x.lineCap='round';x.beginPath();x.moveTo(90,760);x.bezierCurveTo(360,690,540,850,1120,760);x.stroke();x.strokeStyle='#b79a73';x.lineWidth=34;x.beginPath();x.moveTo(260,390);x.lineTo(590,450);x.lineTo(840,545);x.moveTo(590,450);x.lineTo(390,610);x.stroke();x.strokeStyle='#dac69d';x.lineWidth=20;x.stroke();if(s.expanded){x.fillStyle='#315b4a';x.beginPath();x.ellipse(980,300,210,155,0,0,Math.PI*2);x.fill();x.strokeStyle='#ffe09b';x.lineWidth=5;x.setLineDash([12,12]);x.beginPath();x.moveTo(770,375);x.quadraticCurveTo(890,350,1030,360);x.stroke();x.setLineDash([]);tree(980,270,1.2);tree(1040,330,.9);tree(910,325,.8)}[[190,300,.8],[240,580,.8],[520,220,.9],[690,245,.7],[845,650,.8],[650,690,.65],[160,520,.7],[760,330,.55]].forEach(function(t){tree(t[0],t[1],t[2])});bs.forEach(building);ember();cit.forEach(citizen);parts.forEach(function(p){x.globalAlpha=Math.max(0,p.l);x.fillStyle=p.c;x.beginPath();x.arc(p.x,p.y,3+Math.max(0,p.l)*2,0,Math.PI*2);x.fill();x.globalAlpha=1});if(!s.expanded){var f=x.createLinearGradient(740,0,1120,0);f.addColorStop(0,'rgba(10,18,31,0)');f.addColorStop(.35,'rgba(10,18,31,.72)');f.addColorStop(1,'rgba(10,18,31,.96)');x.fillStyle=f;x.fillRect(720,0,500,700);x.fillStyle='rgba(255,255,255,.72)';x.font='700 34px system-ui';x.fillText('🔒',930,290);x.font='700 20px system-ui';x.fillText('Área adormecida',860,330);x.font='14px system-ui';x.fillStyle='rgba(255,255,255,.55)';x.fillText('Alimente a Ember para iluminar.',830,356)}if(pulse>0){x.strokeStyle='rgba(255,191,94,'+pulse+')';x.lineWidth=20*(1-pulse)+5;x.beginPath();x.arc(590,450,(1-pulse)*470,0,Math.PI*2);x.stroke()}x.restore()}
+function loop(now){var dt=Math.min(.05,(now-last)/1000);last=now;update(dt);paintUI();x.clearRect(0,0,innerWidth,innerHeight);worldDraw();requestAnimationFrame(loop)}
+offline();paintUI();ui.objective.style.display=s.hints?'block':'none';document.addEventListener('visibilitychange',function(){if(document.hidden)save()});addEventListener('beforeunload',save);setInterval(save,5000);requestAnimationFrame(loop);
+})();
+</script>
+</body></html>
