@@ -32,6 +32,7 @@ const OUTSIDE_WAIT_SECONDS := 1.8
 @onready var agent: NavigationAgent3D = $NavigationAgent3D
 @onready var visual_root: Node3D = $VisualRoot
 @onready var collision_shape: CollisionShape3D = $CollisionShape3D
+@onready var carry_anchor: Node3D = $VisualRoot/CarryAnchor
 
 var route: Dictionary = {}
 var state: State = State.IDLE
@@ -101,7 +102,8 @@ func _physics_process(delta: float) -> void:
 	if direction.length_squared() > 0.0001:
 		direction = direction.normalized()
 		velocity = direction * MOVE_SPEED
-		look_at(global_position + direction, Vector3.UP)
+		var target_yaw := atan2(-direction.x, -direction.z)
+		rotation.y = lerp_angle(rotation.y, target_yaw, clampf(delta * 7.5, 0.0, 1.0))
 	else:
 		velocity = Vector3.ZERO
 
@@ -150,6 +152,7 @@ func _on_target_reached() -> void:
 		State.TO_ROOM_DOOR_OUT:
 			_set_move_state(State.TO_ROOM_DOOR_IN, route["room_door_in"])
 		State.TO_ROOM_DOOR_IN:
+			carry_anchor.visible = false
 			_set_move_state(State.TO_BED, route["bed"])
 		State.TO_BED:
 			visual_root.visible = false
@@ -182,7 +185,12 @@ func _finish_wait_state() -> void:
 			payment_completed.emit()
 			_set_move_state(State.TO_EXIT, route["exit"])
 		State.WAIT_OUTSIDE:
+			carry_anchor.visible = false
 			position = route["spawn"]
 			visual_root.visible = true
 			collision_shape.set_deferred("disabled", false)
 			_set_move_state(State.TO_RECEPTION, route["reception"])
+
+
+func receive_key() -> void:
+	carry_anchor.visible = true
