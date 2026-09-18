@@ -1,0 +1,98 @@
+name: Ember Inn Godot Web Preview
+
+on:
+  push:
+    branches:
+      - godot-rebuild
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout Godot branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install Godot 4.7.2
+        shell: bash
+        run: |
+          wget -q https://github.com/godotengine/godot-builds/releases/download/4.7.2-stable/Godot_v4.7.2-stable_linux.x86_64.zip -O godot.zip
+          unzip -q godot.zip -d godot-bin
+          chmod +x godot-bin/Godot_v4.7.2-stable_linux.x86_64
+          sudo mv godot-bin/Godot_v4.7.2-stable_linux.x86_64 /usr/local/bin/godot
+          godot --version
+
+      - name: Install Web export templates
+        shell: bash
+        run: |
+          wget -q https://github.com/godotengine/godot-builds/releases/download/4.7.2-stable/Godot_v4.7.2-stable_export_templates.tpz -O export_templates.tpz
+          rm -rf /tmp/godot-export-templates
+          mkdir -p /tmp/godot-export-templates
+          unzip -q export_templates.tpz -d /tmp/godot-export-templates
+          mkdir -p "$HOME/.local/share/godot/export_templates/4.7.2.stable"
+          cp -a /tmp/godot-export-templates/templates/. "$HOME/.local/share/godot/export_templates/4.7.2.stable/"
+
+      - name: Parse Godot project
+        shell: bash
+        run: |
+          set -o pipefail
+          rm -rf godot/.godot
+          godot --headless --path godot --editor --quit 2>&1 | tee parse.log
+          if grep -Eq 'SCRIPT ERROR:|Parse Error:|Failed to load script|Attempt to connect nonexistent signal' parse.log; then
+            echo 'Godot parse diagnostics found; failing CI.'
+            exit 1
+          fi
+
+      - name: Export Web preview
+        shell: bash
+        run: |
+          set -o pipefail
+          rm -rf web-build
+          mkdir -p web-build
+          SHORT_SHA="${GITHUB_SHA::8}"
+          BASENAME="ember-inn-${SHORT_SHA}"
+          godot --headless --path godot --export-release "Web" "$GITHUB_WORKSPACE/web-build/${BASENAME}.html" 2>&1 | tee export.log
+          if grep -Eq 'SCRIPT ERROR:|Parse Error:|Failed to load script|Attempt to connect nonexistent signal' export.log; then
+            echo 'Godot export diagnostics found; failing CI.'
+            exit 1
+          fi
+          test -f "web-build/${BASENAME}.html"
+          cp "web-build/${BASENAME}.html" web-build/index.html
+          printf '%s\n' "$SHORT_SHA" > web-build/build-id.txt
+          touch web-build/.nojekyll
+          ls -lah web-build
+
+      - name: Upload Web preview artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ember-inn-godot-preview
+          path: web-build/
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Publish preview into existing GitHub Pages site
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin main
+          rm -rf /tmp/ember-inn-pages
+          git worktree add --detach /tmp/ember-inn-pages origin/main
+          rm -rf /tmp/ember-inn-pages/godot-preview
+          mkdir -p /tmp/ember-inn-pages/godot-preview
+          cp -a web-build/. /tmp/ember-inn-pages/godot-preview/
+          cd /tmp/ember-inn-pages
+          git add godot-preview
+          if git diff --cached --quiet; then
+            echo "Preview unchanged; nothing to publish."
+            exit 0
+          fi
+          git commit -m "chore: publish Ember Inn Godot preview [skip ci]"
+          git push origin HEAD:main
