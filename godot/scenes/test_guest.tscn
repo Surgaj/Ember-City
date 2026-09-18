@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=3]
+[gd_scene load_steps=9 format=3]
 
 [ext_resource type="Script" path="res://scripts/test_guest.gd" id="1_guest"]
 
@@ -28,6 +28,22 @@ rings = 6
 radius = 0.31
 height = 1.35
 
+[sub_resource type="StandardMaterial3D" id="KeyMaterial"]
+albedo_color = Color(0.94, 0.66, 0.18, 1)
+metallic = 0.35
+roughness = 0.42
+
+[sub_resource type="BoxMesh" id="KeyShaftMesh"]
+material = SubResource("KeyMaterial")
+size = Vector3(0.06, 0.06, 0.34)
+
+[sub_resource type="CylinderMesh" id="KeyHeadMesh"]
+material = SubResource("KeyMaterial")
+top_radius = 0.11
+bottom_radius = 0.11
+height = 0.05
+radial_segments = 12
+
 [node name="TestGuest" type="CharacterBody3D"]
 script = ExtResource("1_guest")
 
@@ -52,3 +68,16 @@ cast_shadow = 1
 position = Vector3(0, 1.28, 0)
 mesh = SubResource("GuestHeadMesh")
 cast_shadow = 1
+
+[node name="CarryAnchor" type="Node3D" parent="VisualRoot"]
+position = Vector3(0.34, 0.83, -0.04)
+visible = false
+
+[node name="KeyShaft" type="MeshInstance3D" parent="VisualRoot/CarryAnchor"]
+mesh = SubResource("KeyShaftMesh")
+rotation_degrees = Vector3(0, 0, 90)
+
+[node name="KeyHead" type="MeshInstance3D" parent="VisualRoot/CarryAnchor"]
+position = Vector3(0.0, 0.17, 0.0)
+mesh = SubResource("KeyHeadMesh")
+rotation_degrees = Vector3(90, 0, 0)
