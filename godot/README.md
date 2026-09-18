@@ -2,9 +2,9 @@
 
 Branch: `godot-rebuild`
 
-## Milestone 0.2 — Structure + Surroundings
+## Milestone 0.3 — Interior Identity
 
-This milestone contains the **inn architecture plus its immediate exterior surroundings**.
+This milestone keeps the architecture and surroundings, and adds the **first readable interior stations**.
 
 Implemented:
 
@@ -22,13 +22,16 @@ Implemented:
 - terrain base surrounding the building;
 - a clear entrance path aligned with the front doorway;
 - grass variation, rocks, bushes and perimeter trees;
-- an intentionally empty clearing reserved for the future expansion wing.
+- an intentionally empty clearing reserved for the future expansion wing;
+- a central Ember hearth with a real `OmniLight3D` warm light;
+- subtle Ember light flicker;
+- a reception blockout with desk, register, bell and key rack;
+- one recognizable bedroom setup with bed, mattress, pillow and side table;
+- a café blockout with counter, coffee machine, pastry case and stools;
+- simple rugs that reinforce the arrival-to-lobby flow.
 
 Intentionally not implemented yet:
 
-- furniture;
-- reception desk;
-- Ember;
 - guests or staff;
 - navigation/pathfinding;
 - economy or upgrades;
@@ -40,7 +43,7 @@ The current structure establishes the future visual flow:
 
 `front entrance → lobby/reception → Ember core → room / café → future wing`
 
-The next milestone should work on **interior furnishing and spatial identity only** — reception desk, room furniture and café blockout — without guests or economy yet.
+The next milestone should add **one temporary test guest only** and validate navigation: entrance → reception → Ember. No economy, no hotel loop, no multiple NPCs yet.
 
 
 ## Web preview
