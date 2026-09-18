@@ -1,7 +1,7 @@
 extends Node3D
 
-# EMBER INN — Godot Rebuild / Milestone 0.5
-# Scope: First Service — safe guest route, one receptionist and animated Ember.
+# EMBER INN — Godot Rebuild / Milestone 0.6
+# Scope: readable check-in, Ember payment feedback and draggable isometric camera.
 # Still no economy, upgrades, production chains or multiple guests.
 
 const WALL_HEIGHT := 3.4
@@ -34,6 +34,9 @@ const EMBER_LOG_COLOR := Color("#5A3827")
 const EMBER_COAL_COLOR := Color("#2F2622")
 const EMBER_ORANGE := Color("#FF8A3D")
 const EMBER_GOLD := Color("#FFC75A")
+const FLAME_DEEP := Color("#D94F28")
+const FLAME_MID := Color("#FF8A32")
+const FLAME_TIP := Color("#FFD56C")
 const RECEPTION_WOOD := Color("#704731")
 const RECEPTION_TOP := Color("#B77A4E")
 const DARK_WOOD := Color("#4F352A")
@@ -55,11 +58,15 @@ const RECEPTIONIST_SCENE := preload("res://scenes/receptionist.tscn")
 @onready var actors: Node3D = $Actors
 
 var camera: Camera3D
+var camera_focus := Vector3(0.0, 0.9, 0.0)
+var camera_offset := Vector3(12.5, 10.1, 13.5)
 var ember_light: OmniLight3D
+var ember_react_timer := 0.0
 var ember_flames: Array[MeshInstance3D] = []
 var ember_flame_base_positions: Array[Vector3] = []
 var ember_flame_base_scales: Array[Vector3] = []
 var ember_sparks: Array[MeshInstance3D] = []
+var payment_pulses: Array[Dictionary] = []
 var receptionist: Node3D
 var payment_count := 0
 
@@ -118,15 +125,59 @@ func _setup_camera() -> void:
 	camera.far = 80.0
 	add_child(camera)
 
-	camera.position = Vector3(12.5, 11.0, 13.5)
-	camera.look_at(Vector3(0.0, 0.9, 0.0), Vector3.UP)
+	camera.position = camera_focus + camera_offset
+	camera.look_at(camera_focus, Vector3.UP)
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if event is InputEventScreenDrag:
+		_pan_camera(event.relative)
+		get_viewport().set_input_as_handled()
+	elif event is InputEventMouseMotion and (event.button_mask & MOUSE_BUTTON_MASK_LEFT) != 0:
+		_pan_camera(event.relative)
+		get_viewport().set_input_as_handled()
+
+
+func _pan_camera(screen_delta: Vector2) -> void:
+	if camera == null:
+		return
+
+	var viewport_size := get_viewport().get_visible_rect().size
+	if viewport_size.y <= 0.0:
+		return
+
+	var right := camera.global_transform.basis.x
+	right.y = 0.0
+	right = right.normalized()
+
+	var forward_flat := Vector3(-camera_offset.x, 0.0, -camera_offset.z).normalized()
+	var world_per_pixel := camera.size / viewport_size.y
+	var delta_world := (
+		-right * screen_delta.x +
+		forward_flat * screen_delta.y
+	) * world_per_pixel * 1.18
+
+	camera_focus += delta_world
+	camera_focus.x = clampf(camera_focus.x, -4.6, 4.6)
+	camera_focus.z = clampf(camera_focus.z, -3.4, 4.2)
+	_apply_camera_pose()
+
+
+func _apply_camera_pose() -> void:
+	if camera == null:
+		return
+	camera.position = camera_focus + camera_offset
+	camera.look_at(camera_focus, Vector3.UP)
 
 
 func _process(_delta: float) -> void:
 	var ticks := float(Time.get_ticks_msec()) * 0.006
 
+	ember_react_timer = maxf(0.0, ember_react_timer - _delta)
+	var reaction := ember_react_timer / 0.75 if ember_react_timer > 0.0 else 0.0
+
 	if ember_light != null:
-		ember_light.light_energy = 2.30 + sin(ticks) * 0.20 + sin(ticks * 2.3) * 0.08
+		ember_light.light_energy = 1.72 + sin(ticks) * 0.13 + sin(ticks * 2.3) * 0.05 + reaction * 0.72
 
 	for index in range(ember_flames.size()):
 		var flame := ember_flames[index]
@@ -134,10 +185,11 @@ func _process(_delta: float) -> void:
 		var base_position := ember_flame_base_positions[index]
 		var phase := ticks * (1.35 + float(index) * 0.16) + float(index) * 1.7
 
+		var reaction_scale := 1.0 + reaction * 0.28
 		flame.scale = Vector3(
-			base_scale.x * (0.90 + sin(phase * 1.8) * 0.10),
-			base_scale.y * (0.94 + sin(phase) * 0.15),
-			base_scale.z * (0.90 + cos(phase * 1.55) * 0.08)
+			base_scale.x * (0.90 + sin(phase * 1.8) * 0.10) * reaction_scale,
+			base_scale.y * (0.94 + sin(phase) * 0.15) * reaction_scale,
+			base_scale.z * (0.90 + cos(phase * 1.55) * 0.08) * reaction_scale
 		)
 		flame.position = base_position + Vector3(
 			sin(phase * 1.25) * 0.055,
@@ -158,6 +210,34 @@ func _process(_delta: float) -> void:
 		spark.scale = Vector3.ONE * spark_size
 
 
+
+	for pulse_index in range(payment_pulses.size() - 1, -1, -1):
+		var pulse: Dictionary = payment_pulses[pulse_index]
+		var node := pulse["node"] as MeshInstance3D
+		var t := float(pulse["t"]) + _delta * 1.55
+		pulse["t"] = t
+		payment_pulses[pulse_index] = pulse
+
+		if t < 0.0:
+			node.visible = false
+			continue
+
+		node.visible = true
+		var clamped_t := clampf(t, 0.0, 1.0)
+		var smooth_t := clamped_t * clamped_t * (3.0 - 2.0 * clamped_t)
+		var start: Vector3 = pulse["start"]
+		var finish: Vector3 = pulse["finish"]
+		node.position = start.lerp(finish, smooth_t)
+		node.position.y += sin(clamped_t * PI) * 0.85
+		var size := 0.10 + sin(clamped_t * PI) * 0.07
+		node.scale = Vector3.ONE * size
+
+		if t >= 1.0:
+			ember_react_timer = 0.75
+			node.queue_free()
+			payment_pulses.remove_at(pulse_index)
+
+
 func _fit_camera() -> void:
 	if camera == null:
 		return
@@ -168,6 +248,7 @@ func _fit_camera() -> void:
 
 	var aspect := viewport_size.x / viewport_size.y
 	camera.size = 17.4 if aspect < 0.75 else 14.8
+	_apply_camera_pose()
 
 
 func _build_surroundings() -> void:
@@ -413,21 +494,21 @@ func _build_ember() -> void:
 		"EmberFlameLow",
 		0.52,
 		center + Vector3(0.0, 0.93, 0.0),
-		EMBER_ORANGE,
+		FLAME_DEEP,
 		Vector3(0.78, 1.12, 0.78)
 	)
 	var flame_mid := _glowing_sphere(
 		"EmberFlameMid",
 		0.38,
 		center + Vector3(-0.10, 1.35, 0.03),
-		EMBER_GOLD,
+		FLAME_MID,
 		Vector3(0.72, 1.35, 0.72)
 	)
 	var flame_tip := _glowing_sphere(
 		"EmberFlameTip",
 		0.25,
 		center + Vector3(0.10, 1.72, -0.02),
-		Color("#FFF0A8"),
+		FLAME_TIP,
 		Vector3(0.66, 1.46, 0.66)
 	)
 
@@ -441,7 +522,7 @@ func _build_ember() -> void:
 			"EmberSpark_%s" % spark_index,
 			0.08,
 			center + Vector3(0.0, 0.90, 0.0),
-			EMBER_GOLD if spark_index % 2 == 0 else EMBER_ORANGE,
+			FLAME_TIP if spark_index % 2 == 0 else FLAME_MID,
 			Vector3.ONE * 0.08
 		)
 		ember_sparks.append(spark)
@@ -449,9 +530,9 @@ func _build_ember() -> void:
 	ember_light = OmniLight3D.new()
 	ember_light.name = "EmberWarmLight"
 	ember_light.position = center + Vector3(0.0, 1.35, 0.0)
-	ember_light.light_color = Color("#FF9B4A")
-	ember_light.light_energy = 2.30
-	ember_light.omni_range = 7.4
+	ember_light.light_color = Color("#FF8741")
+	ember_light.light_energy = 1.72
+	ember_light.omni_range = 6.8
 	ember_light.shadow_enabled = true
 	interior_props.add_child(ember_light)
 
@@ -763,6 +844,7 @@ func _spawn_test_guest() -> void:
 	if receptionist != null:
 		guest.connect("checkin_started", Callable(receptionist, "serve_checkin"))
 		guest.connect("payment_started", Callable(receptionist, "receive_payment"))
+		receptionist.connect("key_handoff", Callable(guest, "receive_key"))
 
 	guest.connect("payment_completed", Callable(self, "_on_test_guest_paid"))
 	actors.add_child(guest)
@@ -770,6 +852,7 @@ func _spawn_test_guest() -> void:
 
 func _on_test_guest_paid() -> void:
 	# One physical coin is added per completed stay so payment can be read without HUD.
+	_spawn_ember_payment_pulse()
 	payment_count += 1
 	var column := (payment_count - 1) % 4
 	var layer := int((payment_count - 1) / 4)
@@ -788,6 +871,27 @@ func _on_test_guest_paid() -> void:
 		true,
 		interior_props
 	)
+
+
+func _spawn_ember_payment_pulse() -> void:
+	var start := Vector3(-3.25, 1.42, 2.66)
+	var finish := Vector3(0.0, 1.18, 0.20)
+
+	for index in range(5):
+		var pulse := _glowing_sphere(
+			"PaymentLight_%s_%s" % [payment_count, index],
+			0.10,
+			start,
+			FLAME_TIP if index % 2 == 0 else FLAME_MID,
+			Vector3.ONE * 0.10
+		)
+		pulse.visible = false
+		payment_pulses.append({
+			"node": pulse,
+			"t": -float(index) * 0.10,
+			"start": start + Vector3(float(index) * 0.035, 0.0, 0.0),
+			"finish": finish,
+		})
 
 
 func _build_structure() -> void:
@@ -1118,7 +1222,7 @@ func _glowing_sphere(
 	material.roughness = 0.42
 	material.emission_enabled = true
 	material.emission = color
-	material.emission_energy_multiplier = 2.4
+	material.emission_energy_multiplier = 1.28
 
 	var instance := MeshInstance3D.new()
 	instance.name = node_name
