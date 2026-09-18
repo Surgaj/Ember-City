@@ -1,8 +1,8 @@
 extends Node3D
 
-# EMBER INN — Godot Rebuild / Milestone 0.3
-# Scope: architecture + exterior + first interior identity pass.
-# No guests, navigation, economy or upgrade systems yet.
+# EMBER INN — Godot Rebuild / Milestone 0.4
+# Scope: first complete guest movement test through the existing inn.
+# Still no economy, upgrades, production chains or multiple NPCs.
 
 const WALL_HEIGHT := 3.4
 const PARTITION_HEIGHT := 1.75
@@ -45,13 +45,17 @@ const CAFE_WOOD := Color("#795039")
 const CAFE_TOP := Color("#C38959")
 const METAL_COLOR := Color("#59625E")
 const RUG_COLOR := Color("#8B5D56")
+const TEST_GUEST_SCENE := preload("res://scenes/test_guest.tscn")
 
 @onready var surroundings: Node3D = $Surroundings
 @onready var architecture: Node3D = $Architecture
 @onready var interior_props: Node3D = $InteriorProps
+@onready var navigation_region: NavigationRegion3D = $NavigationRegion3D
+@onready var actors: Node3D = $Actors
 
 var camera: Camera3D
 var ember_light: OmniLight3D
+var payment_count := 0
 
 
 func _ready() -> void:
@@ -60,6 +64,8 @@ func _ready() -> void:
 	_build_surroundings()
 	_build_structure()
 	_build_interior_identity()
+	_build_navigation_test()
+	_spawn_test_guest()
 	get_viewport().size_changed.connect(_fit_camera)
 	_fit_camera()
 
@@ -282,6 +288,7 @@ func _build_interior_identity() -> void:
 	_build_flow_rugs()
 	_build_ember()
 	_build_reception()
+	_build_bedroom_door()
 	_build_bedroom_props()
 	_build_cafe_props()
 
@@ -583,6 +590,115 @@ func _build_cafe_props() -> void:
 			true,
 			interior_props
 		)
+
+
+func _build_bedroom_door() -> void:
+	# The bedroom opening now reads as a real private room rather than an exposed alcove.
+	_box(
+		"BedroomDoorHeader",
+		Vector3(0.22, 0.18, 1.56),
+		Vector3(-1.55, 2.02, -0.82),
+		DARK_WOOD,
+		0.92,
+		true,
+		interior_props
+	)
+
+	var door_leaf := _box(
+		"BedroomDoorLeaf",
+		Vector3(0.12, 1.78, 1.18),
+		Vector3(-1.18, 1.08, -1.26),
+		Color("#875A3C"),
+		0.90,
+		true,
+		interior_props
+	)
+	door_leaf.rotation_degrees.y = -56.0
+
+	_cylinder(
+		"BedroomDoorHandle",
+		0.055,
+		0.12,
+		Vector3(-0.72, 1.08, -1.06),
+		EMBER_GOLD,
+		10,
+		true,
+		interior_props
+	)
+
+
+func _build_navigation_test() -> void:
+	# Hand-authored walkable polygons keep this first navigation test deterministic.
+	# Later milestones can replace this with a baked navmesh once collision geometry is final.
+	var navigation_mesh := NavigationMesh.new()
+
+	var vertices := PackedVector3Array([
+		Vector3(-5.70, 0.20, -4.70),
+		Vector3(-5.70, 0.20, 4.70),
+		Vector3(-1.20, 0.20, 4.70),
+		Vector3(-1.20, 0.20, -4.70),
+		Vector3(1.20, 0.20, -4.70),
+		Vector3(1.20, 0.20, 4.70),
+		Vector3(5.70, 0.20, -4.70),
+		Vector3(5.70, 0.20, 4.70),
+		Vector3(-1.20, 0.20, 8.80),
+		Vector3(1.20, 0.20, 8.80),
+	])
+
+	navigation_mesh.set_vertices(vertices)
+	navigation_mesh.add_polygon(PackedInt32Array([0, 1, 2, 3]))
+	navigation_mesh.add_polygon(PackedInt32Array([3, 2, 5, 4]))
+	navigation_mesh.add_polygon(PackedInt32Array([4, 5, 7, 6]))
+	navigation_mesh.add_polygon(PackedInt32Array([2, 8, 9, 5]))
+
+	navigation_region.navigation_mesh = navigation_mesh
+	navigation_region.enabled = true
+
+
+func _spawn_test_guest() -> void:
+	var guest := TEST_GUEST_SCENE.instantiate() as CharacterBody3D
+	if guest == null:
+		push_error("Could not instantiate TestGuest.")
+		return
+
+	guest.name = "TestGuest"
+
+	var route := {
+		"spawn": Vector3(0.0, 0.20, 8.20),
+		"reception": Vector3(-3.25, 0.20, 3.55),
+		"lobby": Vector3(0.0, 0.20, 1.65),
+		"room_door_out": Vector3(-0.95, 0.20, -0.82),
+		"room_door_in": Vector3(-2.05, 0.20, -0.82),
+		"bed": Vector3(-3.05, 0.20, -2.05),
+		"exit": Vector3(0.0, 0.20, 8.45),
+	}
+
+	guest.call("configure", route)
+	guest.position = route["spawn"]
+	guest.connect("payment_completed", Callable(self, "_on_test_guest_paid"))
+	actors.add_child(guest)
+
+
+func _on_test_guest_paid() -> void:
+	# One physical coin is added per completed stay so payment can be read without HUD.
+	payment_count += 1
+	var column := (payment_count - 1) % 4
+	var layer := int((payment_count - 1) / 4)
+
+	_cylinder(
+		"PaymentCoin_%s" % payment_count,
+		0.13,
+		0.055,
+		Vector3(
+			-3.80 + float(column) * 0.28,
+			1.27 + float(layer) * 0.06,
+			2.56
+		),
+		EMBER_GOLD,
+		12,
+		true,
+		interior_props
+	)
 
 
 func _build_structure() -> void:
