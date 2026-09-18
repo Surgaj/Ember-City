@@ -1,5 +1,7 @@
 extends CharacterBody3D
 
+signal checkin_started
+signal payment_started
 signal payment_completed
 
 enum State {
@@ -141,6 +143,7 @@ func _is_wait_state() -> bool:
 func _on_target_reached() -> void:
 	match state:
 		State.TO_RECEPTION:
+			checkin_started.emit()
 			_start_wait(State.CHECKIN, CHECKIN_SECONDS)
 		State.TO_LOBBY:
 			_set_move_state(State.TO_ROOM_DOOR_OUT, route["room_door_out"])
@@ -159,6 +162,7 @@ func _on_target_reached() -> void:
 		State.RETURN_LOBBY:
 			_set_move_state(State.TO_PAY, route["reception"])
 		State.TO_PAY:
+			payment_started.emit()
 			_start_wait(State.PAY, PAY_SECONDS)
 		State.TO_EXIT:
 			visual_root.visible = false
