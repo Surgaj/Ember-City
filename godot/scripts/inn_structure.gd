@@ -141,12 +141,12 @@ func _build_back_wall() -> void:
 		{"x": 5.325, "width": 0.75},
 	]
 
-	for index in segments.size():
+	for index in range(segments.size()):
 		var segment: Dictionary = segments[index]
 		_box(
 			"BackWallPier_%s" % index,
-			Vector3(float(segment.width), middle_height, WALL_THICKNESS),
-			Vector3(float(segment.x), middle_y, z),
+			Vector3(float(segment["width"]), middle_height, WALL_THICKNESS),
+			Vector3(float(segment["x"]), middle_y, z),
 			WALL_COLOR
 		)
 
