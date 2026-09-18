@@ -1,8 +1,8 @@
 extends Node3D
 
-# EMBER INN — Godot Rebuild / Milestone 0.4
-# Scope: first complete guest movement test through the existing inn.
-# Still no economy, upgrades, production chains or multiple NPCs.
+# EMBER INN — Godot Rebuild / Milestone 0.5
+# Scope: First Service — safe guest route, one receptionist and animated Ember.
+# Still no economy, upgrades, production chains or multiple guests.
 
 const WALL_HEIGHT := 3.4
 const PARTITION_HEIGHT := 1.75
@@ -46,6 +46,7 @@ const CAFE_TOP := Color("#C38959")
 const METAL_COLOR := Color("#59625E")
 const RUG_COLOR := Color("#8B5D56")
 const TEST_GUEST_SCENE := preload("res://scenes/test_guest.tscn")
+const RECEPTIONIST_SCENE := preload("res://scenes/receptionist.tscn")
 
 @onready var surroundings: Node3D = $Surroundings
 @onready var architecture: Node3D = $Architecture
@@ -55,6 +56,11 @@ const TEST_GUEST_SCENE := preload("res://scenes/test_guest.tscn")
 
 var camera: Camera3D
 var ember_light: OmniLight3D
+var ember_flames: Array[MeshInstance3D] = []
+var ember_flame_base_positions: Array[Vector3] = []
+var ember_flame_base_scales: Array[Vector3] = []
+var ember_sparks: Array[MeshInstance3D] = []
+var receptionist: Node3D
 var payment_count := 0
 
 
@@ -64,6 +70,7 @@ func _ready() -> void:
 	_build_surroundings()
 	_build_structure()
 	_build_interior_identity()
+	_spawn_receptionist()
 	_build_navigation_test()
 	_spawn_test_guest()
 	get_viewport().size_changed.connect(_fit_camera)
@@ -116,11 +123,39 @@ func _setup_camera() -> void:
 
 
 func _process(_delta: float) -> void:
-	if ember_light == null:
-		return
-
 	var ticks := float(Time.get_ticks_msec()) * 0.006
-	ember_light.light_energy = 2.45 + sin(ticks) * 0.16 + sin(ticks * 2.3) * 0.06
+
+	if ember_light != null:
+		ember_light.light_energy = 2.30 + sin(ticks) * 0.20 + sin(ticks * 2.3) * 0.08
+
+	for index in range(ember_flames.size()):
+		var flame := ember_flames[index]
+		var base_scale := ember_flame_base_scales[index]
+		var base_position := ember_flame_base_positions[index]
+		var phase := ticks * (1.35 + float(index) * 0.16) + float(index) * 1.7
+
+		flame.scale = Vector3(
+			base_scale.x * (0.90 + sin(phase * 1.8) * 0.10),
+			base_scale.y * (0.94 + sin(phase) * 0.15),
+			base_scale.z * (0.90 + cos(phase * 1.55) * 0.08)
+		)
+		flame.position = base_position + Vector3(
+			sin(phase * 1.25) * 0.055,
+			sin(phase * 1.70) * 0.055,
+			cos(phase * 1.10) * 0.035
+		)
+
+	for index in range(ember_sparks.size()):
+		var spark := ember_sparks[index]
+		var phase := fmod(ticks * 0.16 + float(index) * 0.19, 1.0)
+		var side_phase := ticks * 1.4 + float(index) * 2.1
+		spark.position = Vector3(
+			sin(side_phase) * (0.10 + phase * 0.22),
+			0.88 + phase * 1.55,
+			0.20 + cos(side_phase * 0.83) * (0.07 + phase * 0.14)
+		)
+		var spark_size := maxf(0.035, (1.0 - phase) * 0.13)
+		spark.scale = Vector3.ONE * spark_size
 
 
 func _fit_camera() -> void:
@@ -374,21 +409,21 @@ func _build_ember() -> void:
 	)
 	log_b.rotation_degrees.y = -38.0
 
-	_glowing_sphere(
+	var flame_low := _glowing_sphere(
 		"EmberFlameLow",
 		0.52,
 		center + Vector3(0.0, 0.93, 0.0),
 		EMBER_ORANGE,
 		Vector3(0.78, 1.12, 0.78)
 	)
-	_glowing_sphere(
+	var flame_mid := _glowing_sphere(
 		"EmberFlameMid",
 		0.38,
 		center + Vector3(-0.10, 1.35, 0.03),
 		EMBER_GOLD,
 		Vector3(0.72, 1.35, 0.72)
 	)
-	_glowing_sphere(
+	var flame_tip := _glowing_sphere(
 		"EmberFlameTip",
 		0.25,
 		center + Vector3(0.10, 1.72, -0.02),
@@ -396,11 +431,26 @@ func _build_ember() -> void:
 		Vector3(0.66, 1.46, 0.66)
 	)
 
+	for flame in [flame_low, flame_mid, flame_tip]:
+		ember_flames.append(flame)
+		ember_flame_base_positions.append(flame.position)
+		ember_flame_base_scales.append(flame.scale)
+
+	for spark_index in range(6):
+		var spark := _glowing_sphere(
+			"EmberSpark_%s" % spark_index,
+			0.08,
+			center + Vector3(0.0, 0.90, 0.0),
+			EMBER_GOLD if spark_index % 2 == 0 else EMBER_ORANGE,
+			Vector3.ONE * 0.08
+		)
+		ember_sparks.append(spark)
+
 	ember_light = OmniLight3D.new()
 	ember_light.name = "EmberWarmLight"
 	ember_light.position = center + Vector3(0.0, 1.35, 0.0)
 	ember_light.light_color = Color("#FF9B4A")
-	ember_light.light_energy = 2.45
+	ember_light.light_energy = 2.30
 	ember_light.omni_range = 7.4
 	ember_light.shadow_enabled = true
 	interior_props.add_child(ember_light)
@@ -628,31 +678,66 @@ func _build_bedroom_door() -> void:
 
 
 func _build_navigation_test() -> void:
-	# Hand-authored walkable polygons keep this first navigation test deterministic.
-	# Later milestones can replace this with a baked navmesh once collision geometry is final.
+	# A narrow connected navigation ribbon follows the intended guest flow.
+	# It intentionally excludes the Ember, desk volume, café and bed footprint.
 	var navigation_mesh := NavigationMesh.new()
+	var corridor_half_width := 0.52
 
-	var vertices := PackedVector3Array([
-		Vector3(-5.70, 0.20, -4.70),
-		Vector3(-5.70, 0.20, 4.70),
-		Vector3(-1.20, 0.20, 4.70),
-		Vector3(-1.20, 0.20, -4.70),
-		Vector3(1.20, 0.20, -4.70),
-		Vector3(1.20, 0.20, 4.70),
-		Vector3(5.70, 0.20, -4.70),
-		Vector3(5.70, 0.20, 4.70),
-		Vector3(-1.20, 0.20, 8.80),
-		Vector3(1.20, 0.20, 8.80),
-	])
+	var centerline := [
+		Vector3(0.0, 0.20, 8.75),
+		Vector3(0.0, 0.20, 4.55),
+		Vector3(-3.25, 0.20, 3.55),
+		Vector3(-2.35, 0.20, 2.15),
+		Vector3(-1.55, 0.20, 0.90),
+		Vector3(-1.18, 0.20, -0.82),
+		Vector3(-1.90, 0.20, -1.42),
+		Vector3(-2.15, 0.20, -2.10),
+	]
+
+	var vertices := PackedVector3Array()
+	for index in range(centerline.size()):
+		var direction: Vector3
+		if index == 0:
+			direction = centerline[1] - centerline[0]
+		elif index == centerline.size() - 1:
+			direction = centerline[index] - centerline[index - 1]
+		else:
+			direction = centerline[index + 1] - centerline[index - 1]
+
+		direction.y = 0.0
+		direction = direction.normalized()
+		var perpendicular := Vector3(-direction.z, 0.0, direction.x) * corridor_half_width
+		vertices.append(centerline[index] + perpendicular)
+		vertices.append(centerline[index] - perpendicular)
 
 	navigation_mesh.set_vertices(vertices)
-	navigation_mesh.add_polygon(PackedInt32Array([0, 1, 2, 3]))
-	navigation_mesh.add_polygon(PackedInt32Array([3, 2, 5, 4]))
-	navigation_mesh.add_polygon(PackedInt32Array([4, 5, 7, 6]))
-	navigation_mesh.add_polygon(PackedInt32Array([2, 8, 9, 5]))
+
+	for index in range(centerline.size() - 1):
+		var left_a := index * 2
+		var right_a := left_a + 1
+		var left_b := (index + 1) * 2
+		var right_b := left_b + 1
+		navigation_mesh.add_polygon(PackedInt32Array([
+			left_a,
+			right_a,
+			right_b,
+			left_b,
+		]))
 
 	navigation_region.navigation_mesh = navigation_mesh
 	navigation_region.enabled = true
+
+
+func _spawn_receptionist() -> void:
+	receptionist = RECEPTIONIST_SCENE.instantiate() as Node3D
+	if receptionist == null:
+		push_error("Could not instantiate Receptionist.")
+		return
+
+	receptionist.name = "Receptionist"
+	receptionist.position = Vector3(-3.25, 0.20, 1.88)
+	receptionist.rotation_degrees.y = 0.0
+	actors.add_child(receptionist)
 
 
 func _spawn_test_guest() -> void:
@@ -666,15 +751,19 @@ func _spawn_test_guest() -> void:
 	var route := {
 		"spawn": Vector3(0.0, 0.20, 8.20),
 		"reception": Vector3(-3.25, 0.20, 3.55),
-		"lobby": Vector3(0.0, 0.20, 1.65),
-		"room_door_out": Vector3(-0.95, 0.20, -0.82),
-		"room_door_in": Vector3(-2.05, 0.20, -0.82),
-		"bed": Vector3(-3.05, 0.20, -2.05),
+		"lobby": Vector3(-1.55, 0.20, 0.90),
+		"room_door_out": Vector3(-1.18, 0.20, -0.82),
+		"room_door_in": Vector3(-1.90, 0.20, -1.42),
+		"bed": Vector3(-2.15, 0.20, -2.10),
 		"exit": Vector3(0.0, 0.20, 8.45),
 	}
 
 	guest.call("configure", route)
 	guest.position = route["spawn"]
+	if receptionist != null:
+		guest.connect("checkin_started", Callable(receptionist, "serve_checkin"))
+		guest.connect("payment_started", Callable(receptionist, "receive_payment"))
+
 	guest.connect("payment_completed", Callable(self, "_on_test_guest_paid"))
 	actors.add_child(guest)
 
