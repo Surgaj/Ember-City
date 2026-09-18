@@ -8,3 +8,5 @@ script = ExtResource("1_structure")
 [node name="Surroundings" type="Node3D" parent="."]
 
 [node name="Architecture" type="Node3D" parent="."]
+
+[node name="InteriorProps" type="Node3D" parent="."]
