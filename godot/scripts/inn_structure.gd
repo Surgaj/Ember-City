@@ -1,8 +1,8 @@
 extends Node3D
 
-# EMBER INN — Godot Rebuild / Milestone 0.1
-# Scope of this scene: architecture only.
-# No guests, economy, furniture, Ember, landscaping or exterior props yet.
+# EMBER INN — Godot Rebuild / Milestone 0.2
+# Scope of this scene: architecture + immediate exterior surroundings.
+# No guests, economy, furniture or Ember yet.
 
 const WALL_HEIGHT := 3.4
 const PARTITION_HEIGHT := 1.75
@@ -16,6 +16,19 @@ const BEAM_COLOR := Color("#5D3E2E")
 const THRESHOLD_COLOR := Color("#7B5238")
 const PLANK_LINE_COLOR := Color("#785039")
 
+const TERRAIN_COLOR := Color("#6F9D73")
+const GRASS_LIGHT_COLOR := Color("#82B77B")
+const GRASS_DARK_COLOR := Color("#587F5D")
+const PATH_COLOR := Color("#C9A46C")
+const PATH_EDGE_COLOR := Color("#8C6B4B")
+const CLEARING_COLOR := Color("#9BB27A")
+const ROCK_COLOR := Color("#737A70")
+const ROCK_LIGHT_COLOR := Color("#8A9186")
+const TREE_TRUNK_COLOR := Color("#684832")
+const TREE_LEAF_COLOR := Color("#4E7B58")
+const TREE_LEAF_LIGHT_COLOR := Color("#639567")
+
+@onready var surroundings: Node3D = $Surroundings
 @onready var architecture: Node3D = $Architecture
 
 var camera: Camera3D
@@ -24,6 +37,7 @@ var camera: Camera3D
 func _ready() -> void:
 	_setup_environment()
 	_setup_camera()
+	_build_surroundings()
 	_build_structure()
 	get_viewport().size_changed.connect(_fit_camera)
 	_fit_camera()
@@ -83,7 +97,156 @@ func _fit_camera() -> void:
 		return
 
 	var aspect := viewport_size.x / viewport_size.y
-	camera.size = 15.8 if aspect < 0.75 else 13.5
+	camera.size = 17.4 if aspect < 0.75 else 14.8
+
+
+func _build_surroundings() -> void:
+	_build_ground()
+	_build_entry_path()
+	_build_expansion_clearing()
+	_build_landscape_props()
+
+
+func _build_ground() -> void:
+	# A broad, calm terrain pad keeps the inn from floating in empty space.
+	_box(
+		"TerrainBase",
+		Vector3(20.0, 0.52, 17.2),
+		Vector3(0.0, -0.66, 0.65),
+		TERRAIN_COLOR,
+		0.98,
+		false,
+		surroundings
+	)
+
+	# Soft grass islands break the rectangular silhouette without cluttering gameplay space.
+	_cylinder(
+		"GrassPatchBackLeft",
+		2.65,
+		0.07,
+		Vector3(-7.1, -0.365, -4.8),
+		GRASS_DARK_COLOR,
+		24,
+		false
+	)
+	_cylinder(
+		"GrassPatchBackRight",
+		2.35,
+		0.065,
+		Vector3(7.2, -0.362, -4.2),
+		GRASS_LIGHT_COLOR,
+		24,
+		false
+	)
+	_cylinder(
+		"GrassPatchFrontLeft",
+		2.15,
+		0.055,
+		Vector3(-7.4, -0.36, 5.4),
+		GRASS_LIGHT_COLOR,
+		24,
+		false
+	)
+
+
+func _build_entry_path() -> void:
+	# The path is centered exactly on the architectural entrance, making the flow unmistakable.
+	_box(
+		"EntryPath",
+		Vector3(2.55, 0.08, 4.2),
+		Vector3(0.0, -0.355, 6.75),
+		PATH_COLOR,
+		0.96,
+		false,
+		surroundings
+	)
+
+	# Darker edge strips give the path weight and stop it from looking painted onto the grass.
+	_box(
+		"EntryPathEdgeLeft",
+		Vector3(0.16, 0.055, 4.3),
+		Vector3(-1.34, -0.345, 6.75),
+		PATH_EDGE_COLOR,
+		0.92,
+		false,
+		surroundings
+	)
+	_box(
+		"EntryPathEdgeRight",
+		Vector3(0.16, 0.055, 4.3),
+		Vector3(1.34, -0.345, 6.75),
+		PATH_EDGE_COLOR,
+		0.92,
+		false,
+		surroundings
+	)
+
+	# Three shallow approach stones subtly pull the eye from the screen edge toward the doorway.
+	for index in range(3):
+		var z_pos := 8.48 - float(index) * 0.62
+		_box(
+			"ApproachStone_%s" % index,
+			Vector3(2.18 - float(index) * 0.12, 0.07, 0.34),
+			Vector3(0.0, -0.30, z_pos),
+			PATH_EDGE_COLOR,
+			0.94,
+			false,
+			surroundings
+		)
+
+
+func _build_expansion_clearing() -> void:
+	# A deliberately empty pad communicates future growth without inventing gameplay yet.
+	_cylinder(
+		"FutureExpansionClearing",
+		2.15,
+		0.075,
+		Vector3(7.25, -0.35, 2.25),
+		CLEARING_COLOR,
+		28,
+		false
+	)
+
+	var marker_positions := [
+		Vector3(5.55, -0.29, 1.05),
+		Vector3(8.85, -0.29, 1.10),
+		Vector3(5.75, -0.29, 3.70),
+		Vector3(8.65, -0.29, 3.65),
+	]
+	for index in range(marker_positions.size()):
+		_rock(
+			"ExpansionMarker_%s" % index,
+			marker_positions[index],
+			Vector3(0.34, 0.22, 0.34),
+			ROCK_LIGHT_COLOR
+		)
+
+
+func _build_landscape_props() -> void:
+	# Trees live on the perimeter so they frame the inn instead of blocking the cutaway.
+	_tree("TreeBackLeft", Vector3(-7.8, -0.39, -5.8), 1.05)
+	_tree("TreeFarLeft", Vector3(-8.35, -0.39, 0.45), 0.86)
+	_tree("TreeBackRight", Vector3(7.65, -0.39, -5.35), 0.96)
+	_tree("TreeRearCluster", Vector3(3.55, -0.39, -7.05), 0.74)
+
+	var rocks := [
+		{"name": "RockLeftA", "pos": Vector3(-7.0, -0.30, 3.3), "scale": Vector3(0.55, 0.30, 0.42)},
+		{"name": "RockLeftB", "pos": Vector3(-8.25, -0.30, 4.25), "scale": Vector3(0.34, 0.22, 0.30)},
+		{"name": "RockBackA", "pos": Vector3(5.8, -0.30, -6.55), "scale": Vector3(0.44, 0.25, 0.34)},
+		{"name": "RockRightA", "pos": Vector3(9.05, -0.30, -0.75), "scale": Vector3(0.48, 0.27, 0.37)},
+	]
+	for rock_data in rocks:
+		_rock(
+			String(rock_data["name"]),
+			rock_data["pos"],
+			rock_data["scale"],
+			ROCK_COLOR
+		)
+
+	_bush("BushLeft", Vector3(-7.45, -0.33, 2.0), 0.52)
+	_bush("BushBack", Vector3(6.2, -0.33, -5.7), 0.46)
+	_bush("BushEntryLeft", Vector3(-2.15, -0.33, 6.05), 0.42)
+	_bush("BushEntryRight", Vector3(2.15, -0.33, 6.05), 0.42)
 
 
 func _build_structure() -> void:
@@ -299,7 +462,8 @@ func _box(
 	position: Vector3,
 	color: Color,
 	roughness: float = 0.88,
-	casts_shadow: bool = true
+	casts_shadow: bool = true,
+	parent: Node3D = null
 ) -> MeshInstance3D:
 	var mesh := BoxMesh.new()
 	mesh.size = size
@@ -320,5 +484,137 @@ func _box(
 		else GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	)
 
-	architecture.add_child(instance)
+	var target_parent: Node3D = architecture if parent == null else parent
+	target_parent.add_child(instance)
 	return instance
+
+
+func _cylinder(
+	node_name: String,
+	radius: float,
+	height: float,
+	position: Vector3,
+	color: Color,
+	segments: int = 16,
+	casts_shadow: bool = true
+) -> MeshInstance3D:
+	var mesh := CylinderMesh.new()
+	mesh.top_radius = radius
+	mesh.bottom_radius = radius
+	mesh.height = height
+	mesh.radial_segments = segments
+
+	var material := StandardMaterial3D.new()
+	material.albedo_color = color
+	material.roughness = 0.96
+
+	var instance := MeshInstance3D.new()
+	instance.name = node_name
+	instance.mesh = mesh
+	instance.position = position
+	instance.material_override = material
+	instance.cast_shadow = (
+		GeometryInstance3D.SHADOW_CASTING_SETTING_ON
+		if casts_shadow
+		else GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	)
+	surroundings.add_child(instance)
+	return instance
+
+
+func _sphere(
+	node_name: String,
+	radius: float,
+	position: Vector3,
+	color: Color,
+	scale_value: Vector3 = Vector3.ONE,
+	casts_shadow: bool = true
+) -> MeshInstance3D:
+	var mesh := SphereMesh.new()
+	mesh.radius = radius
+	mesh.height = radius * 2.0
+	mesh.radial_segments = 10
+	mesh.rings = 6
+
+	var material := StandardMaterial3D.new()
+	material.albedo_color = color
+	material.roughness = 0.94
+
+	var instance := MeshInstance3D.new()
+	instance.name = node_name
+	instance.mesh = mesh
+	instance.position = position
+	instance.scale = scale_value
+	instance.material_override = material
+	instance.cast_shadow = (
+		GeometryInstance3D.SHADOW_CASTING_SETTING_ON
+		if casts_shadow
+		else GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	)
+	surroundings.add_child(instance)
+	return instance
+
+
+func _tree(node_name: String, ground_position: Vector3, size_scale: float = 1.0) -> void:
+	var trunk_height := 1.62 * size_scale
+	_cylinder(
+		node_name + "Trunk",
+		0.18 * size_scale,
+		trunk_height,
+		ground_position + Vector3(0.0, trunk_height * 0.5, 0.0),
+		TREE_TRUNK_COLOR,
+		9,
+		true
+	)
+
+	_sphere(
+		node_name + "CrownLow",
+		0.86 * size_scale,
+		ground_position + Vector3(-0.18 * size_scale, 1.48 * size_scale, 0.04),
+		TREE_LEAF_COLOR,
+		Vector3(1.05, 0.82, 0.94)
+	)
+	_sphere(
+		node_name + "CrownHigh",
+		0.76 * size_scale,
+		ground_position + Vector3(0.22 * size_scale, 2.02 * size_scale, -0.08),
+		TREE_LEAF_LIGHT_COLOR,
+		Vector3(0.94, 1.02, 0.92)
+	)
+	_sphere(
+		node_name + "CrownSide",
+		0.61 * size_scale,
+		ground_position + Vector3(0.62 * size_scale, 1.54 * size_scale, 0.10),
+		TREE_LEAF_COLOR,
+		Vector3(0.88, 0.78, 0.92)
+	)
+
+
+func _rock(node_name: String, position: Vector3, scale_value: Vector3, color: Color) -> void:
+	_sphere(
+		node_name,
+		0.62,
+		position,
+		color,
+		scale_value,
+		true
+	)
+
+
+func _bush(node_name: String, position: Vector3, size_scale: float) -> void:
+	_sphere(
+		node_name + "A",
+		0.62 * size_scale,
+		position + Vector3(-0.18 * size_scale, 0.20 * size_scale, 0.0),
+		TREE_LEAF_COLOR,
+		Vector3(1.0, 0.75, 0.9),
+		true
+	)
+	_sphere(
+		node_name + "B",
+		0.54 * size_scale,
+		position + Vector3(0.24 * size_scale, 0.22 * size_scale, 0.06),
+		TREE_LEAF_LIGHT_COLOR,
+		Vector3(0.9, 0.72, 0.86),
+		true
+	)
