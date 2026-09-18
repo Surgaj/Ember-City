@@ -1,8 +1,8 @@
 extends Node3D
 
-# EMBER INN — Godot Rebuild / Milestone 0.2
-# Scope of this scene: architecture + immediate exterior surroundings.
-# No guests, economy, furniture or Ember yet.
+# EMBER INN — Godot Rebuild / Milestone 0.3
+# Scope: architecture + exterior + first interior identity pass.
+# No guests, navigation, economy or upgrade systems yet.
 
 const WALL_HEIGHT := 3.4
 const PARTITION_HEIGHT := 1.75
@@ -28,10 +28,30 @@ const TREE_TRUNK_COLOR := Color("#684832")
 const TREE_LEAF_COLOR := Color("#4E7B58")
 const TREE_LEAF_LIGHT_COLOR := Color("#639567")
 
+const EMBER_STONE_COLOR := Color("#72665A")
+const EMBER_STONE_LIGHT_COLOR := Color("#8A7C6D")
+const EMBER_LOG_COLOR := Color("#5A3827")
+const EMBER_COAL_COLOR := Color("#2F2622")
+const EMBER_ORANGE := Color("#FF8A3D")
+const EMBER_GOLD := Color("#FFC75A")
+const RECEPTION_WOOD := Color("#704731")
+const RECEPTION_TOP := Color("#B77A4E")
+const DARK_WOOD := Color("#4F352A")
+const BED_FRAME_COLOR := Color("#694635")
+const MATTRESS_COLOR := Color("#E7D7BE")
+const PILLOW_COLOR := Color("#F7EEE0")
+const BLANKET_COLOR := Color("#A96D63")
+const CAFE_WOOD := Color("#795039")
+const CAFE_TOP := Color("#C38959")
+const METAL_COLOR := Color("#59625E")
+const RUG_COLOR := Color("#8B5D56")
+
 @onready var surroundings: Node3D = $Surroundings
 @onready var architecture: Node3D = $Architecture
+@onready var interior_props: Node3D = $InteriorProps
 
 var camera: Camera3D
+var ember_light: OmniLight3D
 
 
 func _ready() -> void:
@@ -39,6 +59,7 @@ func _ready() -> void:
 	_setup_camera()
 	_build_surroundings()
 	_build_structure()
+	_build_interior_identity()
 	get_viewport().size_changed.connect(_fit_camera)
 	_fit_camera()
 
@@ -52,7 +73,7 @@ func _setup_environment() -> void:
 	environment.background_color = Color("#86AAA5")
 	environment.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
 	environment.ambient_light_color = Color("#E8DDC9")
-	environment.ambient_light_energy = 0.8
+	environment.ambient_light_energy = 0.58
 	environment.tonemap_mode = Environment.TONE_MAPPER_FILMIC
 	world.environment = environment
 	add_child(world)
@@ -60,7 +81,7 @@ func _setup_environment() -> void:
 	var sun := DirectionalLight3D.new()
 	sun.name = "Sun"
 	sun.light_color = Color("#FFF0D2")
-	sun.light_energy = 1.15
+	sun.light_energy = 0.88
 	sun.shadow_enabled = true
 	sun.rotation_degrees = Vector3(-52.0, -38.0, 0.0)
 	add_child(sun)
@@ -68,7 +89,7 @@ func _setup_environment() -> void:
 	var fill := DirectionalLight3D.new()
 	fill.name = "SoftFill"
 	fill.light_color = Color("#B7D1D5")
-	fill.light_energy = 0.28
+	fill.light_energy = 0.18
 	fill.shadow_enabled = false
 	fill.rotation_degrees = Vector3(-28.0, 132.0, 0.0)
 	add_child(fill)
@@ -86,6 +107,14 @@ func _setup_camera() -> void:
 
 	camera.position = Vector3(12.5, 11.0, 13.5)
 	camera.look_at(Vector3(0.0, 0.9, 0.0), Vector3.UP)
+
+
+func _process(_delta: float) -> void:
+	if ember_light == null:
+		return
+
+	var ticks := float(Time.get_ticks_msec()) * 0.006
+	ember_light.light_energy = 2.45 + sin(ticks) * 0.16 + sin(ticks * 2.3) * 0.06
 
 
 func _fit_camera() -> void:
@@ -247,6 +276,313 @@ func _build_landscape_props() -> void:
 	_bush("BushBack", Vector3(6.2, -0.33, -5.7), 0.46)
 	_bush("BushEntryLeft", Vector3(-2.15, -0.33, 6.05), 0.42)
 	_bush("BushEntryRight", Vector3(2.15, -0.33, 6.05), 0.42)
+
+
+func _build_interior_identity() -> void:
+	_build_flow_rugs()
+	_build_ember()
+	_build_reception()
+	_build_bedroom_props()
+	_build_cafe_props()
+
+
+func _build_flow_rugs() -> void:
+	# The entrance runner points directly toward the Ember and keeps the lobby readable.
+	_box(
+		"LobbyRunner",
+		Vector3(1.35, 0.035, 3.05),
+		Vector3(0.0, 0.205, 2.85),
+		RUG_COLOR,
+		0.92,
+		false,
+		interior_props
+	)
+	_box(
+		"ReceptionRug",
+		Vector3(3.35, 0.032, 1.65),
+		Vector3(-3.25, 0.205, 2.55),
+		Color("#8F6B58"),
+		0.94,
+		false,
+		interior_props
+	)
+	_box(
+		"BedroomRug",
+		Vector3(3.05, 0.032, 2.25),
+		Vector3(-3.65, 0.205, -2.62),
+		Color("#7C625C"),
+		0.94,
+		false,
+		interior_props
+	)
+
+
+func _build_ember() -> void:
+	var center := Vector3(0.0, 0.0, 0.20)
+
+	# Raised hearth makes the Ember feel physically rooted in the inn.
+	_cylinder(
+		"EmberHearth",
+		1.02,
+		0.20,
+		center + Vector3(0.0, 0.29, 0.0),
+		EMBER_COAL_COLOR,
+		20,
+		true,
+		interior_props
+	)
+
+	for index in range(12):
+		var angle := TAU * float(index) / 12.0
+		var stone_position := center + Vector3(cos(angle) * 0.88, 0.48, sin(angle) * 0.88)
+		_sphere(
+			"EmberStone_%s" % index,
+			0.24,
+			stone_position,
+			EMBER_STONE_LIGHT_COLOR if index % 2 == 0 else EMBER_STONE_COLOR,
+			Vector3(1.08, 0.62, 0.82),
+			true,
+			interior_props
+		)
+
+	var log_a := _box(
+		"EmberLogA",
+		Vector3(1.22, 0.20, 0.25),
+		center + Vector3(0.0, 0.56, 0.0),
+		EMBER_LOG_COLOR,
+		0.96,
+		true,
+		interior_props
+	)
+	log_a.rotation_degrees.y = 36.0
+
+	var log_b := _box(
+		"EmberLogB",
+		Vector3(1.22, 0.20, 0.25),
+		center + Vector3(0.0, 0.60, 0.0),
+		EMBER_LOG_COLOR,
+		0.96,
+		true,
+		interior_props
+	)
+	log_b.rotation_degrees.y = -38.0
+
+	_glowing_sphere(
+		"EmberFlameLow",
+		0.52,
+		center + Vector3(0.0, 0.93, 0.0),
+		EMBER_ORANGE,
+		Vector3(0.78, 1.12, 0.78)
+	)
+	_glowing_sphere(
+		"EmberFlameMid",
+		0.38,
+		center + Vector3(-0.10, 1.35, 0.03),
+		EMBER_GOLD,
+		Vector3(0.72, 1.35, 0.72)
+	)
+	_glowing_sphere(
+		"EmberFlameTip",
+		0.25,
+		center + Vector3(0.10, 1.72, -0.02),
+		Color("#FFF0A8"),
+		Vector3(0.66, 1.46, 0.66)
+	)
+
+	ember_light = OmniLight3D.new()
+	ember_light.name = "EmberWarmLight"
+	ember_light.position = center + Vector3(0.0, 1.35, 0.0)
+	ember_light.light_color = Color("#FF9B4A")
+	ember_light.light_energy = 2.45
+	ember_light.omni_range = 7.4
+	ember_light.shadow_enabled = true
+	interior_props.add_child(ember_light)
+
+
+func _build_reception() -> void:
+	# Immediately visible from the entrance and deliberately offset left of the Ember.
+	_box(
+		"ReceptionDesk",
+		Vector3(3.00, 0.88, 0.82),
+		Vector3(-3.25, 0.62, 2.60),
+		RECEPTION_WOOD,
+		0.90,
+		true,
+		interior_props
+	)
+	_box(
+		"ReceptionTop",
+		Vector3(3.18, 0.16, 0.96),
+		Vector3(-3.25, 1.13, 2.60),
+		RECEPTION_TOP,
+		0.78,
+		true,
+		interior_props
+	)
+	_box(
+		"ReceptionFrontPanel",
+		Vector3(2.55, 0.44, 0.08),
+		Vector3(-3.25, 0.61, 3.03),
+		DARK_WOOD,
+		0.94,
+		true,
+		interior_props
+	)
+
+	# Small register + bell instantly communicate the function of this station.
+	_box(
+		"ReceptionRegister",
+		Vector3(0.55, 0.34, 0.44),
+		Vector3(-2.62, 1.39, 2.55),
+		METAL_COLOR,
+		0.62,
+		true,
+		interior_props
+	)
+	_cylinder(
+		"ReceptionBell",
+		0.14,
+		0.16,
+		Vector3(-3.95, 1.30, 2.57),
+		EMBER_GOLD,
+		14,
+		true,
+		interior_props
+	)
+
+	# Key rack behind the desk, ready for the later check-in animation.
+	_box(
+		"ReceptionKeyRack",
+		Vector3(2.25, 0.92, 0.16),
+		Vector3(-3.25, 1.64, 3.42),
+		DARK_WOOD,
+		0.92,
+		true,
+		interior_props
+	)
+	for key_index in range(4):
+		_cylinder(
+			"KeyPeg_%s" % key_index,
+			0.045,
+			0.16,
+			Vector3(-4.05 + float(key_index) * 0.54, 1.67, 3.30),
+			EMBER_GOLD,
+			8,
+			true,
+			interior_props
+		)
+
+
+func _build_bedroom_props() -> void:
+	var bed_center := Vector3(-3.78, 0.0, -2.62)
+
+	_box(
+		"BedFrame",
+		Vector3(2.70, 0.28, 1.82),
+		bed_center + Vector3(0.0, 0.36, 0.0),
+		BED_FRAME_COLOR,
+		0.94,
+		true,
+		interior_props
+	)
+	_box(
+		"Mattress",
+		Vector3(2.48, 0.30, 1.62),
+		bed_center + Vector3(0.0, 0.64, 0.0),
+		MATTRESS_COLOR,
+		0.98,
+		true,
+		interior_props
+	)
+	_box(
+		"Blanket",
+		Vector3(1.32, 0.08, 1.52),
+		bed_center + Vector3(0.48, 0.83, 0.0),
+		BLANKET_COLOR,
+		0.98,
+		true,
+		interior_props
+	)
+	_box(
+		"Pillow",
+		Vector3(0.64, 0.18, 1.12),
+		bed_center + Vector3(-0.82, 0.88, 0.0),
+		PILLOW_COLOR,
+		1.0,
+		true,
+		interior_props
+	)
+	_box(
+		"BedHeadboard",
+		Vector3(0.16, 1.18, 1.92),
+		bed_center + Vector3(-1.34, 0.86, 0.0),
+		DARK_WOOD,
+		0.92,
+		true,
+		interior_props
+	)
+
+	_box(
+		"BedsideTable",
+		Vector3(0.62, 0.64, 0.62),
+		Vector3(-2.18, 0.49, -3.25),
+		RECEPTION_WOOD,
+		0.92,
+		true,
+		interior_props
+	)
+
+
+func _build_cafe_props() -> void:
+	# The café lives in the back-right room, visually balancing the bedroom.
+	_box(
+		"CafeCounter",
+		Vector3(3.05, 0.88, 0.82),
+		Vector3(3.75, 0.62, -2.42),
+		CAFE_WOOD,
+		0.90,
+		true,
+		interior_props
+	)
+	_box(
+		"CafeCounterTop",
+		Vector3(3.22, 0.15, 0.96),
+		Vector3(3.75, 1.13, -2.42),
+		CAFE_TOP,
+		0.80,
+		true,
+		interior_props
+	)
+	_box(
+		"CoffeeMachine",
+		Vector3(0.88, 0.78, 0.62),
+		Vector3(3.20, 1.57, -2.47),
+		METAL_COLOR,
+		0.58,
+		true,
+		interior_props
+	)
+	_box(
+		"PastryCase",
+		Vector3(0.88, 0.55, 0.62),
+		Vector3(4.55, 1.45, -2.47),
+		Color("#C99A69"),
+		0.72,
+		true,
+		interior_props
+	)
+
+	for stool_index in range(2):
+		_cylinder(
+			"CafeStool_%s" % stool_index,
+			0.31,
+			0.72,
+			Vector3(3.15 + float(stool_index) * 1.25, 0.54, -1.32),
+			DARK_WOOD,
+			14,
+			true,
+			interior_props
+		)
 
 
 func _build_structure() -> void:
@@ -496,7 +832,8 @@ func _cylinder(
 	position: Vector3,
 	color: Color,
 	segments: int = 16,
-	casts_shadow: bool = true
+	casts_shadow: bool = true,
+	parent: Node3D = null
 ) -> MeshInstance3D:
 	var mesh := CylinderMesh.new()
 	mesh.top_radius = radius
@@ -518,7 +855,8 @@ func _cylinder(
 		if casts_shadow
 		else GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	)
-	surroundings.add_child(instance)
+	var target_parent: Node3D = surroundings if parent == null else parent
+	target_parent.add_child(instance)
 	return instance
 
 
@@ -528,7 +866,8 @@ func _sphere(
 	position: Vector3,
 	color: Color,
 	scale_value: Vector3 = Vector3.ONE,
-	casts_shadow: bool = true
+	casts_shadow: bool = true,
+	parent: Node3D = null
 ) -> MeshInstance3D:
 	var mesh := SphereMesh.new()
 	mesh.radius = radius
@@ -551,7 +890,39 @@ func _sphere(
 		if casts_shadow
 		else GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	)
-	surroundings.add_child(instance)
+	var target_parent: Node3D = surroundings if parent == null else parent
+	target_parent.add_child(instance)
+	return instance
+
+
+func _glowing_sphere(
+	node_name: String,
+	radius: float,
+	position: Vector3,
+	color: Color,
+	scale_value: Vector3
+) -> MeshInstance3D:
+	var mesh := SphereMesh.new()
+	mesh.radius = radius
+	mesh.height = radius * 2.0
+	mesh.radial_segments = 12
+	mesh.rings = 8
+
+	var material := StandardMaterial3D.new()
+	material.albedo_color = color
+	material.roughness = 0.42
+	material.emission_enabled = true
+	material.emission = color
+	material.emission_energy_multiplier = 2.4
+
+	var instance := MeshInstance3D.new()
+	instance.name = node_name
+	instance.mesh = mesh
+	instance.position = position
+	instance.scale = scale_value
+	instance.material_override = material
+	instance.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	interior_props.add_child(instance)
 	return instance
 
 
