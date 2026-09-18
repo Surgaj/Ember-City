@@ -3,362 +3,336 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
-<meta name="theme-color" content="#17271f">
-<title>EMBER INN — First Night</title>
+<meta name="theme-color" content="#14241e">
+<title>EMBER INN — Living Machine</title>
 <style>
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body,main{margin:0;width:100%;height:100%;overflow:hidden;background:#16261f;color:#fff7e8;font-family:Inter,system-ui,-apple-system,sans-serif}
+html,body,main{margin:0;width:100%;height:100%;overflow:hidden;background:#14241e;color:#fff7e7;font-family:Inter,system-ui,-apple-system,sans-serif}
 canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
-button{font:inherit;color:inherit;border:0}
-.top{position:absolute;z-index:8;top:max(9px,env(safe-area-inset-top));left:9px;right:9px;display:flex;justify-content:space-between;align-items:flex-start;pointer-events:none}
-.brand,.wallet,.quest,.panel,.offline,.toast{background:rgba(22,31,29,.91);border:1px solid rgba(255,229,174,.16);box-shadow:0 12px 34px #0006;backdrop-filter:blur(12px)}
-.brand{pointer-events:auto;display:flex;align-items:center;gap:7px;padding:7px 9px;border-radius:15px}
-.brand .fire{font-size:20px;filter:drop-shadow(0 0 8px #ff9a3c)}
+button{font:inherit;border:0;color:inherit}
+.hud{position:absolute;z-index:8;top:max(9px,env(safe-area-inset-top));left:9px;right:9px;display:flex;justify-content:space-between;align-items:flex-start;pointer-events:none}
+.brand,.cash,.objective,.sheet,.offline,.toast{background:rgba(18,28,25,.9);border:1px solid rgba(255,225,171,.16);box-shadow:0 12px 34px #0006;backdrop-filter:blur(12px)}
+.brand{display:flex;align-items:center;gap:7px;padding:7px 9px;border-radius:15px}
+.brand .fire{font-size:20px;filter:drop-shadow(0 0 8px #ff9638)}
 .brand b{display:block;font-size:10px;letter-spacing:.12em;color:#ffe0a0}
-.brand small{display:block;font-size:7px;color:#a9b9b0}
-.wallet{pointer-events:auto;padding:8px 11px;border-radius:15px;text-align:right}
-.wallet b{font-size:14px;color:#ffe09a}.wallet small{display:block;font-size:7px;color:#a9b9b0}
-.quest{position:absolute;z-index:8;left:50%;bottom:max(78px,calc(env(safe-area-inset-bottom) + 68px));transform:translateX(-50%);width:min(340px,calc(100% - 28px));padding:8px 11px;border-radius:14px;text-align:center;font-size:9px;color:#cbd8d0}
-.quest b{color:#ffd489}.quest em{font-style:normal;color:#83dfaa;font-weight:900}
-.panel{position:absolute;z-index:12;left:10px;right:10px;bottom:max(10px,env(safe-area-inset-bottom));padding:14px;border-radius:21px}
-.panel.hidden,.offline.hidden,.toast.hidden{display:none}
-.panel .close{position:absolute;right:9px;top:9px;width:31px;height:31px;border-radius:50%;background:#ffffff12}
-.panel h2{margin:0 38px 2px 0;font-size:18px}.panel .sub{font-size:9px;color:#9fb2aa}
-.panel .effect{margin:11px 0 9px;padding:9px;border-radius:12px;background:#ffffff0d;font-size:10px;color:#d9e7df;line-height:1.35}
-.panel .next{font-size:9px;color:#96cba9;margin-bottom:9px}
-.panel .up{width:100%;padding:12px;border-radius:12px;background:linear-gradient(#ffd37c,#e99543);color:#3a250e;font-weight:900}
-.panel .up:disabled{opacity:.42;filter:grayscale(1)}
-.panel .embernote{padding:10px;border-radius:12px;background:#ff9e2c12;border:1px solid #ffb34b24;color:#ffd9a3;font-size:10px;line-height:1.45}
-.offline{position:absolute;z-index:14;top:72px;left:10px;right:10px;padding:12px;border-radius:16px;display:flex;gap:9px;align-items:center}
-.offline div{flex:1}.offline b{display:block;font-size:11px}.offline small{font-size:8px;color:#a8bab0}
+.brand small{display:block;font-size:7px;color:#9fb3aa}
+.cash{padding:8px 11px;border-radius:15px;text-align:right}
+.cash b{font-size:14px;color:#ffe09a}.cash small{display:block;font-size:7px;color:#9fb3aa}
+.objective{position:absolute;z-index:8;left:50%;bottom:max(11px,env(safe-area-inset-bottom));transform:translateX(-50%);width:min(350px,calc(100% - 24px));padding:7px 10px;border-radius:13px;text-align:center;font-size:9px;color:#c6d7cf;transition:.3s}
+.objective b{color:#ffd58f}.objective em{font-style:normal;color:#85dfa9;font-weight:900}
+.sheet{position:absolute;z-index:12;left:10px;right:10px;bottom:max(10px,env(safe-area-inset-bottom));padding:14px;border-radius:21px}
+.sheet.hidden,.offline.hidden,.toast.hidden{display:none}
+.sheet .close{position:absolute;right:9px;top:9px;width:31px;height:31px;border-radius:50%;background:#ffffff12}
+.sheet h2{margin:0 38px 2px 0;font-size:18px}.sheet .sub{font-size:9px;color:#9fb2aa}
+.sheet .effect{margin:11px 0 8px;padding:9px;border-radius:12px;background:#ffffff0c;font-size:10px;color:#dbe8e1;line-height:1.4}
+.sheet .next{font-size:9px;color:#93c8a7;margin-bottom:9px}
+.sheet .upgrade{width:100%;padding:12px;border-radius:12px;background:linear-gradient(#ffd37a,#e99543);color:#3a250e;font-weight:900}
+.sheet .upgrade:disabled{opacity:.42;filter:grayscale(1)}
+.offline{position:absolute;z-index:14;top:72px;left:10px;right:10px;padding:11px;border-radius:15px;display:flex;gap:9px;align-items:center}
+.offline div{flex:1}.offline b{display:block;font-size:11px}.offline small{font-size:8px;color:#a9bab1}
 .offline button{padding:9px 11px;border-radius:10px;background:#86d5a5;color:#183221;font-weight:900}
-.toast{position:absolute;z-index:20;top:25%;left:50%;transform:translateX(-50%);padding:10px 14px;border-radius:14px;font-size:11px;font-weight:800;text-align:center;white-space:nowrap}
-.tip{position:absolute;z-index:7;right:9px;top:max(70px,calc(env(safe-area-inset-top) + 62px));width:128px;padding:7px 8px;border-radius:12px;background:#17221ddd;border:1px solid #ffffff10;font-size:8px;color:#aabbb2;text-align:right;pointer-events:none}
-.tip b{display:block;color:#f3d69c;font-size:9px}
+.toast{position:absolute;z-index:20;top:23%;left:50%;transform:translateX(-50%);padding:9px 13px;border-radius:13px;font-size:11px;font-weight:800;text-align:center;white-space:nowrap}
 @media(min-width:760px){
- .panel{left:auto;right:18px;width:360px;bottom:18px}
- .quest{bottom:18px}
- .tip{right:18px}
+ .sheet{left:auto;right:18px;width:355px;bottom:18px}
+ .objective{bottom:18px}
 }
 </style>
 </head>
 <body>
 <main>
 <canvas id="game"></canvas>
-<header class="top">
-  <div class="brand"><span class="fire">🔥</span><div><b>EMBER INN</b><small>The Real Inn · Rebuild 0.2</small></div></div>
-  <div class="wallet"><b>🪙 <span id="coins">120</span></b><small>caixa da pousada</small></div>
+<header class="hud">
+  <div class="brand"><span class="fire">🔥</span><div><b>EMBER INN</b><small>Living Machine · 0.3</small></div></div>
+  <div class="cash"><b>🪙 <span id="coins">90</span></b><small>caixa da pousada</small></div>
 </header>
-<div id="tip" class="tip"><b>TOQUE NO DIORAMA</b>Recepção, quartos, café e Ember podem evoluir.</div>
-<div id="quest" class="quest"><b>✨ PRIMEIRA NOITE</b> Veja seu primeiro hóspede fazer check-in.</div>
-<section id="panel" class="panel hidden">
+<div id="objective" class="objective"><b>✨ PRIMEIRA ENGRENAGEM</b> Observe o hóspede entrar, receber a chave e usar o quarto.</div>
+<section id="sheet" class="sheet hidden">
   <button id="close" class="close">×</button>
-  <h2 id="pname">Recepção</h2>
-  <div id="psub" class="sub">Nível 1</div>
-  <div id="peffect" class="effect"></div>
-  <div id="pnext" class="next"></div>
-  <button id="upgrade" class="up">Melhorar · <span id="pcost"></span></button>
+  <h2 id="stationName">Recepção</h2>
+  <div id="stationLevel" class="sub">Nível 1</div>
+  <div id="stationEffect" class="effect"></div>
+  <div id="stationNext" class="next"></div>
+  <button id="upgrade" class="upgrade">Melhorar · <span id="upgradeCost"></span></button>
 </section>
-<div id="offline" class="offline hidden"><span style="font-size:22px">🌙</span><div><b>A pousada continuou recebendo hóspedes.</b><small id="offtxt"></small></div><button id="collect">Coletar</button></div>
+<div id="offline" class="offline hidden"><span style="font-size:22px">🌙</span><div><b>A pousada trabalhou enquanto você saiu.</b><small id="offlineText"></small></div><button id="collect">Coletar</button></div>
 <div id="toast" class="toast hidden"></div>
 </main>
 <script>
 (()=>{
 const c=document.querySelector('#game'),x=c.getContext('2d'),$=s=>document.querySelector(s);
-const U={coins:$('#coins'),quest:$('#quest'),tip:$('#tip'),panel:$('#panel'),close:$('#close'),pname:$('#pname'),psub:$('#psub'),peffect:$('#peffect'),pnext:$('#pnext'),upgrade:$('#upgrade'),pcost:$('#pcost'),offline:$('#offline'),offtxt:$('#offtxt'),collect:$('#collect'),toast:$('#toast')};
-const V={w:540,h:620},K='ember-inn-first-night-01';
+const U={coins:$('#coins'),objective:$('#objective'),sheet:$('#sheet'),close:$('#close'),stationName:$('#stationName'),stationLevel:$('#stationLevel'),stationEffect:$('#stationEffect'),stationNext:$('#stationNext'),upgrade:$('#upgrade'),upgradeCost:$('#upgradeCost'),offline:$('#offline'),offlineText:$('#offlineText'),collect:$('#collect'),toast:$('#toast')};
+const SIZE={w:600,h:700},SAVE_KEY='ember-inn-living-machine-03';
 const imgs={};
-[['citizens','assets/v04/citizens.webp'],['embers','assets/v04/embers.webp'],['nature','assets/v04/nature.webp']].forEach(([k,u])=>{let im=new Image();im.decoding='async';im.src=u+'?inn=01';imgs[k]=im});
-function strip(im,idx,cell,dx,dy,dw,dh){if(im&&im.complete&&im.naturalWidth){x.drawImage(im,idx*cell,0,cell,cell,dx,dy,dw,dh);return true}return false}
-function fresh(){return{coins:120,served:0,ember:1,flameXp:0,lvl:{reception:1,room1:1,cafe:1,room2:0,garden:0},unlocked:{room2:false,garden:false},quest:0,last:Date.now()}}
-function load(){try{let f=fresh(),p=JSON.parse(localStorage.getItem(K)||'{}');let s=Object.assign(f,p);s.lvl=Object.assign(f.lvl,p.lvl||{});s.unlocked=Object.assign(f.unlocked,p.unlocked||{});return s}catch(e){return fresh()}}
-let s=load(),view={scale:1,ox:0,oy:0,dpr:1},sel=null,last=performance.now(),spawnTimer=1.2,guests=[],gid=1,particles=[],coinsFx=[],embersFx=[],tipTimer=0;
-const rooms={room1:{id:'room1',name:'Quarto A',x:95,y:285,w:130,h:105,clean:true,occupied:null},room2:{id:'room2',name:'Quarto B',x:250,y:300,w:130,h:105,clean:true,occupied:null}};
-const cleaner={role:'cleaner',x:325,y:410,tx:325,ty:410,state:'idle',timer:0,target:null,sp:42,ph:0};
-const waiter={role:'waiter',x:315,y:95,tx:315,ty:95,state:'idle',target:null,carry:null,sp:46,ph:0};
-const iso={cx:270,cy:170,sx:.53,sy:.285};
-function I(a,b,z=0){return{x:iso.cx+(a-b)*iso.sx,y:iso.cy+(a+b)*iso.sy-z}}
-function inv(px,py){let dx=(px-iso.cx)/iso.sx,dy=(py-iso.cy)/iso.sy;return{x:(dx+dy)/2,y:(dy-dx)/2}}
-function polyRect(a,b,w,h,z=0){return[I(a,b,z),I(a+w,b,z),I(a+w,b+h,z),I(a,b+h,z)]}
-function pathPoly(p,col,stroke){x.beginPath();x.moveTo(p[0].x,p[0].y);for(let i=1;i<p.length;i++)x.lineTo(p[i].x,p[i].y);x.closePath();if(col){x.fillStyle=col;x.fill()}if(stroke){x.strokeStyle=stroke;x.stroke()}}
-function rr(a,b,w,h,r,col){x.beginPath();x.roundRect(a,b,w,h,r);x.fillStyle=col;x.fill()}
-function fmt(v){return v>=1e6?(v/1e6).toFixed(1)+'M':v>=1e3?(v/1e3).toFixed(1)+'K':Math.floor(v)}
-function save(){s.last=Date.now();localStorage.setItem(K,JSON.stringify(s))}
-function toast(t){U.toast.textContent=t;U.toast.classList.remove('hidden');clearTimeout(toast.t);toast.t=setTimeout(()=>U.toast.classList.add('hidden'),1650)}
-function resize(){view.dpr=Math.min(devicePixelRatio||1,2);c.width=innerWidth*view.dpr;c.height=innerHeight*view.dpr;c.style.width=innerWidth+'px';c.style.height=innerHeight+'px';view.scale=Math.min(innerWidth/V.w,innerHeight/V.h);view.ox=(innerWidth-V.w*view.scale)/2;view.oy=(innerHeight-V.h*view.scale)/2}
+[['citizens','assets/v04/citizens.webp'],['embers','assets/v04/embers.webp']].forEach(([k,u])=>{let im=new Image();im.decoding='async';im.src=u+'?v=inn03';imgs[k]=im});
+function sprite(im,idx,cell,dx,dy,dw,dh){if(im&&im.complete&&im.naturalWidth){x.drawImage(im,idx*cell,0,cell,cell,dx,dy,dw,dh);return true}return false}
+function fresh(){return{coins:90,served:0,ember:1,lvl:{reception:1,room1:1,cafe:1,room2:1},room2:false,quest:0,last:Date.now()}}
+function load(){try{let f=fresh(),p=JSON.parse(localStorage.getItem(SAVE_KEY)||'{}'),s=Object.assign(f,p);s.lvl=Object.assign(f.lvl,p.lvl||{});return s}catch(e){return fresh()}}
+let s=load(),dpr=1,scale=1,ox=0,oy=0,last=performance.now(),selected=null,guest=null,spawnIn=.8,fx=[],hearts=[],registerPulse=0,doorPulse=0,manualCleanPulse=0,guestId=0;
+const room1={id:'room1',cx:158,cy:290,door:{x:220,y:345},clean:true,occupied:false,cleaning:false};
+const room2={id:'room2',cx:438,cy:382,door:{x:377,y:350},clean:true,occupied:false,cleaning:false};
+const receptionist={role:'receptionist',x:190,y:406,tx:190,ty:406,ph:0,carry:null};
+const cook={role:'cook',x:410,y:232,tx:410,ty:232,ph:0,carry:null};
+const waiter={role:'waiter',x:430,y:270,tx:430,ty:270,ph:0,state:'idle',target:null,carry:null,sp:62};
+const cleaner={role:'cleaner',x:102,y:425,tx:102,ty:425,ph:0,state:'idle',target:null,carry:null,sp:55};
+function save(){s.last=Date.now();localStorage.setItem(SAVE_KEY,JSON.stringify(s))}
+function resize(){dpr=Math.min(devicePixelRatio||1,2);c.width=innerWidth*dpr;c.height=innerHeight*dpr;c.style.width=innerWidth+'px';c.style.height=innerHeight+'px';scale=Math.min(innerWidth/SIZE.w,innerHeight/SIZE.h);ox=(innerWidth-SIZE.w*scale)/2;oy=(innerHeight-SIZE.h*scale)/2}
 addEventListener('resize',resize);resize();
-function cost(id){let l=s.lvl[id]||1,base={reception:70,room1:85,room2:95,cafe:90,garden:125}[id]||100;return Math.floor(base*Math.pow(1.72,l-1))}
-function maxGuests(){return s.unlocked.room2?5:3}
-function checkinTime(){return Math.max(.8,3.2-s.lvl.reception*.48)}
-function roomTime(id){return Math.max(3.5,9-(s.lvl[id]||1)*.85)}
-function cafeTime(){return Math.max(1.6,5.5-s.lvl.cafe*.65)}
-function roomPay(id){return 18+(s.lvl[id]||1)*8}
-function cafePay(){return 6+s.lvl.cafe*5}
-function gardenPay(){return s.unlocked.garden?10+s.lvl.garden*5:0}
-function nextThreshold(){return s.ember===1?5:s.ember===2?14:s.ember===3?30:50+(s.ember-4)*25}
-function stationName(id){return{reception:'Recepção',room1:'Quarto A',room2:'Quarto B',cafe:'Café da Ember',garden:'Jardim Termal',ember:'Ember'}[id]}
-function stationEffect(id){let l=s.lvl[id]||1;if(id==='reception')return l===1?'Check-in em '+checkinTime().toFixed(1)+'s. Quartos sujos precisam do seu toque.':'Check-in em '+checkinTime().toFixed(1)+'s. A camareira limpa sozinha'+(l>=3?' com carrinho próprio.':'.');if(id==='room1'||id==='room2')return 'Cada estadia rende cerca de 🪙 '+roomPay(id)+' e dura '+roomTime(id).toFixed(1)+'s.';if(id==='cafe')return 'Serve hóspedes em '+cafeTime().toFixed(1)+'s e adiciona 🪙 '+cafePay()+' por pedido.';if(id==='garden')return 'Cada visita ao jardim adiciona 🪙 '+gardenPay()+' e deixa o resort mais valioso.';return ''}
-function stationNext(id){let l=(s.lvl[id]||1)+1;if(id==='reception')return s.lvl.reception===1?'Próximo: contrata camareira + balcão novo.':'Próximo: carrinho de limpeza + check-in mais rápido.';if(id==='room1'||id==='room2')return 'Próximo: decoração nova + estadia mais curta + diária maior.';if(id==='cafe')return 'Próximo: mais mesas, mais vapor e serviço mais rápido.';if(id==='garden')return 'Próximo: mais plantas, luzes e bônus por hóspede.';return ''}
-function unlockCheck(){
- let changed=false;
- if(!s.unlocked.room2&&s.served>=5){s.unlocked.room2=true;s.lvl.room2=1;s.ember=Math.max(2,s.ember);changed=true;burst(I(315,350).x,I(315,350).y,55);toast('🔥 A Ember abriu o Quarto B!')}
- if(!s.unlocked.garden&&s.served>=14){s.unlocked.garden=true;s.lvl.garden=1;s.ember=Math.max(3,s.ember);changed=true;burst(I(380,140).x,I(380,140).y,70);toast('🌿 Jardim Termal desbloqueado!')}
- if(s.served>=30&&s.ember<4){s.ember=4;changed=true;burst(I(235,205).x,I(235,205).y,90);toast('🔥 A Ember ficou radiante!')}
- if(changed)save()
+function rr(a,b,w,h,r,col){x.beginPath();x.roundRect(a,b,w,h,r);x.fillStyle=col;x.fill()}
+function line(a,b,c,d,w,col){x.strokeStyle=col;x.lineWidth=w;x.lineCap='round';x.beginPath();x.moveTo(a,b);x.lineTo(c,d);x.stroke()}
+function fmt(v){return v>=1000000?(v/1000000).toFixed(1)+'M':v>=1000?(v/1000).toFixed(1)+'K':Math.floor(v)}
+function toast(t){U.toast.textContent=t;U.toast.classList.remove('hidden');clearTimeout(toast.t);toast.t=setTimeout(()=>U.toast.classList.add('hidden'),1450)}
+function burst(px,py,n=18,col='#ffd16e'){for(let i=0;i<n;i++)fx.push({x:px,y:py,vx:(Math.random()-.5)*85,vy:-30-Math.random()*70,l:1,r:1.5+Math.random()*2.5,col})}
+function heartToEmber(px,py){hearts.push({x:px,y:py,t:0,l:1})}
+function cost(id){let base={reception:70,room1:85,cafe:90,room2:100}[id],lv=s.lvl[id]||1;return Math.floor(base*Math.pow(1.72,lv-1))}
+function roomPay(id){return 18+(s.lvl[id]||1)*10}
+function cafePay(){return 8+s.lvl.cafe*6}
+function checkinTime(){return Math.max(.75,2.7-s.lvl.reception*.42)}
+function stayTime(id){return Math.max(3.5,7.7-(s.lvl[id]||1)*.62)}
+function serviceTime(){return Math.max(.55,1.6-s.lvl.cafe*.18)}
+function nextEmber(){return s.ember===1?6:s.ember===2?15:s.ember===3?30:55}
+function emberStart(){return s.ember===1?0:s.ember===2?6:s.ember===3?15:30}
+function emberProgress(){let a=emberStart(),b=nextEmber();return Math.max(0,Math.min(1,(s.served-a)/Math.max(1,b-a)))}
+function roomAvailable(){if(room1.clean&&!room1.occupied&&!room1.cleaning)return room1;if(s.room2&&room2.clean&&!room2.occupied&&!room2.cleaning)return room2;return null}
+function objective(){
+ if(s.quest===0)return '<b>✨ PRIMEIRA ENGRENAGEM</b> Veja o primeiro hóspede completar o ciclo.';
+ if(s.quest===1)return '<b>🧹 PRIMEIRA AUTOMAÇÃO</b> Melhore a Recepção para contratar a camareira.';
+ if(s.quest===2)return '<b>🔥 ALIMENTE A EMBER</b> Atenda <em>'+s.served+'/6</em> hóspedes para abrir a nova ala.';
+ if(s.quest===3)return '<b>☕ ACELERE O SERVIÇO</b> Melhore o Café e observe a bandeja viajar mais rápido.';
+ return '<b>🔥 POUSADA VIVA</b> Evolua os setores e deixe a máquina trabalhar sozinha.';
 }
-function burst(px,py,n=28){for(let i=0;i<n;i++)particles.push({x:px,y:py,vx:(Math.random()-.5)*90,vy:-25-Math.random()*90,l:1,r:1.5+Math.random()*2.8})}
-function coinBurst(px,py,value){for(let i=0;i<Math.min(9,3+Math.floor(value/20));i++)coinsFx.push({x:px+(Math.random()-.5)*15,y:py+(Math.random()-.5)*8,vy:-20-Math.random()*25,l:1})}
-function emberTrail(px,py){embersFx.push({x:px,y:py,t:0,l:1})}
-function availableRoom(){let list=[rooms.room1];if(s.unlocked.room2)list.push(rooms.room2);return list.find(r=>r.clean&&!r.occupied)}
+function checkProgress(){
+ if(s.quest===0&&s.served>=1){s.quest=1;toast('O primeiro ciclo fechou ✨')}
+ if(s.quest===1&&s.lvl.reception>=2){s.quest=2;toast('Camareira contratada 🧹')}
+ if(!s.room2&&s.served>=6){s.room2=true;s.ember=Math.max(2,s.ember);doorPulse=1;burst(468,330,42,'#ffb04a');toast('🔥 A Ember abriu a nova ala!')}
+ if(s.quest===2&&s.room2)s.quest=3;
+ if(s.quest===3&&s.lvl.cafe>=2)s.quest=4;
+ if(s.served>=15)s.ember=Math.max(s.ember,3);
+ if(s.served>=30)s.ember=Math.max(s.ember,4)
+}
+function staffIndex(role){return{cleaner:0,cook:1,receptionist:2,guestA:5,guestB:3,waiter:4}[role]??5}
+function drawPerson(v,role,scaleP=1){
+ let idx=staffIndex(role||v.role),sz=52*scaleP,bob=Math.sin(v.ph||0)*1.6,flip=(v.tx||v.x)<v.x;
+ x.save();x.translate(v.x,v.y+bob);if(flip)x.scale(-1,1);
+ if(!sprite(imgs.citizens,idx,52,-sz/2,-sz*.72,sz,sz)){x.fillStyle='#d99b6a';x.beginPath();x.arc(0,-8,12,0,7);x.fill()}
+ x.restore();
+ if(v.carry==='key')drawKey(v.x+10,v.y-30+bob,.85);
+ if(v.carry==='tray')drawTray(v.x+12,v.y-26+bob,.85)
+}
+function drawKey(px,py,z=1){x.save();x.translate(px,py);x.scale(z,z);x.strokeStyle='#e6b939';x.fillStyle='#f2ce56';x.lineWidth=3;x.beginPath();x.arc(0,0,5,0,7);x.stroke();x.beginPath();x.moveTo(5,0);x.lineTo(16,0);x.lineTo(16,5);x.moveTo(12,0);x.lineTo(12,4);x.stroke();x.restore()}
+function drawTray(px,py,z=1){x.save();x.translate(px,py);x.scale(z,z);x.fillStyle='#71452e';x.beginPath();x.ellipse(0,3,15,5,0,0,7);x.fill();x.fillStyle='#f4efe5';x.fillRect(-4,-8,8,10);x.fillStyle='#744d32';x.beginPath();x.arc(0,-8,4,0,7);x.fill();x.restore()}
+function move(v,dt){let dx=v.tx-v.x,dy=v.ty-v.y,d=Math.hypot(dx,dy);if(d<2)return true;v.x+=dx/d*(v.sp||55)*dt;v.y+=dy/d*(v.sp||55)*dt;return false}
 function spawnGuest(){
- if(guests.length>=maxGuests())return;
- guests.push({id:gid++,role:['resident','farmer','delivery'][gid%3],x:5,y:215,tx:55,ty:215,state:'arrive',timer:0,room:null,earned:0,ph:Math.random()*6,sp:37+Math.random()*6,step:0})
+ if(guest)return;
+ guest={id:++guestId,role:guestId%2?'guestA':'guestB',x:300,y:575,tx:300,ty:575,ph:0,sp:58,state:'enter',timer:0,room:null,carry:null,earned:0,serviceDone:false};
+ guest.tx=205;guest.ty=430
 }
-function receptionQueue(){return guests.filter(g=>g.state==='arrive'||g.state==='queue'||g.state==='checkin'||g.state==='waitingRoom').sort((a,b)=>a.id-b.id)}
-function cafeQueue(){return guests.filter(g=>g.state==='toCafe'||g.state==='waitCafe'||g.state==='cafe').sort((a,b)=>a.id-b.id)}
-function setTarget(g,a,b){g.tx=a;g.ty=b}
-function dist(g){return Math.hypot(g.tx-g.x,g.ty-g.y)}
-function move(g,dt){let dx=g.tx-g.x,dy=g.ty-g.y,d=Math.hypot(dx,dy);if(d>2){g.x+=dx/d*g.sp*dt;g.y+=dy/d*g.sp*dt;return false}return true}
-function updateGuest(g,dt){
- g.ph+=dt*6;
- if(g.state==='arrive'||g.state==='queue'||g.state==='waitingRoom'){
-   let q=receptionQueue(),idx=q.indexOf(g),first=idx===0;
-   setTarget(g,75-Math.min(idx,3)*18,205+Math.min(idx,3)*8);
-   if(move(g,dt)&&first){
-     let r=availableRoom();
-     if(r){g.state='checkin';g.timer=checkinTime();setTarget(g,92,205)}
-     else g.state='waitingRoom';
-   }
+function startKeyTransfer(g){g.state='keyTransfer';g.timer=.75;g.keyT=0}
+function updateGuest(dt){
+ if(!guest)return;let g=guest;g.ph+=dt*6;
+ if(g.state==='enter'){
+   if(move(g,dt))g.state='queue'
+ }else if(g.state==='queue'){
+   let r=roomAvailable();if(!r)return;
+   g.state='checkin';g.timer=checkinTime();receptionist.ph+=.1
  }else if(g.state==='checkin'){
-   g.timer-=dt;
+   g.timer-=dt;if(g.timer<=0)startKeyTransfer(g)
+ }else if(g.state==='keyTransfer'){
+   g.timer-=dt;g.keyT=1-Math.max(0,g.timer/.75);
    if(g.timer<=0){
-     let r=availableRoom();
-     if(!r){g.state='waitingRoom';return}
-     r.occupied=g.id;g.room=r.id;g.carry='🗝️';g.state='toRoom';setTarget(g,r.x+r.w*.5,r.y+r.h*.62);
+     let r=roomAvailable();if(!r){g.state='queue';return}
+     r.occupied=true;g.room=r.id;g.carry='key';g.state='toRoom';g.tx=r.door.x;g.ty=r.door.y
    }
  }else if(g.state==='toRoom'){
-   if(move(g,dt)){g.carry=null;g.state='stay';g.timer=roomTime(g.room)}
- }else if(g.state==='stay'){
-   g.timer-=dt;
-   if(g.timer<=0){
-     let r=rooms[g.room];r.occupied=null;r.clean=false;g.earned+=roomPay(g.room);
-     g.state='toCafe';setTarget(g,335,95);
+   if(move(g,dt)){g.carry=null;g.state='settle';g.timer=1.3}
+ }else if(g.state==='settle'){
+   g.timer-=dt;if(g.timer<=0){g.state='waitService';waiter.target=g.id}
+ }else if(g.state==='waitService'){
+   // the waiter drives this state
+ }else if(g.state==='rest'){
+   g.timer-=dt;if(g.timer<=0){
+     let r=g.room==='room2'?room2:room1;r.occupied=false;r.clean=false;
+     g.state='toPay';g.tx=205;g.ty=430
    }
- }else if(g.state==='toCafe'){
-   let q=cafeQueue(),idx=q.indexOf(g);setTarget(g,345+Math.min(idx,2)*18,132+Math.min(idx,2)*14);
-   if(move(g,dt)){g.state='waitCafe';g.timer=0}
- }else if(g.state==='waitCafe'){
-   // waiter physically brings the order
- }else if(g.state==='cafe'){
-   g.timer-=dt;
-   if(g.timer<=0){
-     g.earned+=cafePay();
-     if(s.unlocked.garden){g.state='toGarden';setTarget(g,385,165)}
-     else{g.state='checkout';setTarget(g,115,205)}
-   }
- }else if(g.state==='toGarden'){
-   if(move(g,dt)){g.state='garden';g.timer=Math.max(1.8,4.5-s.lvl.garden*.45)}
- }else if(g.state==='garden'){
-   g.timer-=dt;
-   if(g.timer<=0){g.earned+=gardenPay();g.state='checkout';setTarget(g,115,205)}
- }else if(g.state==='checkout'){
-   if(move(g,dt)){g.state='pay';g.timer=1.1}
+ }else if(g.state==='toPay'){
+   if(move(g,dt)){g.state='pay';g.timer=.9;registerPulse=1}
  }else if(g.state==='pay'){
-   g.timer-=dt;
-   if(g.timer<=0){
-     let bonus=8+s.lvl.reception*3,total=g.earned+bonus;s.coins+=total;s.served++;s.flameXp++;let p=I(115,205,20);coinBurst(p.x,p.y,total);emberTrail(p.x,p.y);g.state='leave';setTarget(g,0,215);unlockCheck();questCheck();save()
+   g.timer-=dt;if(g.timer<=0){
+     let total=g.earned+roomPay(g.room)+cafePay()+8+s.lvl.reception*3;s.coins+=total;s.served++;coinBurst(total);heartToEmber(210,415);g.state='leave';g.tx=300;g.ty=575;checkProgress();save()
    }
  }else if(g.state==='leave'){
-   if(move(g,dt))g.dead=true
- }
-}
-function updateCleaner(dt){
- cleaner.ph+=dt*5;
- if(s.lvl.reception<2){cleaner.state='idle';cleaner.target=null;return}
- if(cleaner.state==='idle'){
-   let dirty=[rooms.room1].concat(s.unlocked.room2?[rooms.room2]:[]).find(r=>!r.clean&&!r.occupied);
-   if(dirty){cleaner.target=dirty.id;cleaner.state='toRoom';cleaner.tx=dirty.x+dirty.w*.35;cleaner.ty=dirty.y+dirty.h*.72}
- }else if(cleaner.state==='toRoom'){
-   if(move(cleaner,dt)){cleaner.state='clean';cleaner.timer=Math.max(1.2,4.2-(s.lvl.reception-1)*.35)}
- }else if(cleaner.state==='clean'){
-   cleaner.timer-=dt;
-   if(cleaner.timer<=0){rooms[cleaner.target].clean=true;let p=I(cleaner.x,cleaner.y,18);burst(p.x,p.y,14);cleaner.target=null;cleaner.state='return';cleaner.tx=325;cleaner.ty=410}
- }else if(cleaner.state==='return'){
-   if(move(cleaner,dt))cleaner.state='idle'
+   if(move(g,dt)){guest=null;spawnIn=Math.max(1.2,3.8-s.lvl.reception*.35)}
  }
 }
 function updateWaiter(dt){
- waiter.ph+=dt*5.5;
+ waiter.ph+=dt*6;
  if(waiter.state==='idle'){
-   let g=guests.find(v=>v.state==='waitCafe');
-   if(g){waiter.target=g.id;waiter.state='pickup';waiter.tx=315;waiter.ty=92}
+   if(guest&&guest.state==='waitService'){waiter.state='pickup';waiter.tx=415;waiter.ty=245}
  }else if(waiter.state==='pickup'){
-   if(move(waiter,dt)){waiter.carry='☕';let g=guests.find(v=>v.id===waiter.target);if(!g){waiter.state='return';waiter.carry=null;waiter.tx=315;waiter.ty=92}else{waiter.state='deliver';waiter.tx=g.x;waiter.ty=g.y}}
+   if(move(waiter,dt)){waiter.timer=serviceTime();waiter.state='prepare'}
+ }else if(waiter.state==='prepare'){
+   waiter.timer-=dt;if(waiter.timer<=0&&guest){waiter.carry='tray';waiter.state='deliver';let r=guest.room==='room2'?room2:room1;waiter.tx=r.door.x+18;waiter.ty=r.door.y-6}
  }else if(waiter.state==='deliver'){
-   let g=guests.find(v=>v.id===waiter.target);if(g){waiter.tx=g.x;waiter.ty=g.y}
-   if(move(waiter,dt)){if(g&&g.state==='waitCafe'){g.state='cafe';g.timer=Math.max(1.2,cafeTime()*.55)}waiter.carry=null;waiter.target=null;waiter.state='return';waiter.tx=315;waiter.ty=92}
+   if(!guest){waiter.carry=null;waiter.state='return';waiter.tx=430;waiter.ty=270;return}
+   if(move(waiter,dt)){waiter.timer=.55;waiter.state='handoff'}
+ }else if(waiter.state==='handoff'){
+   waiter.timer-=dt;if(waiter.timer<=0){waiter.carry=null;if(guest&&guest.state==='waitService'){guest.state='rest';guest.timer=stayTime(guest.room);guest.earned+=cafePay()}waiter.state='return';waiter.tx=430;waiter.ty=270}
  }else if(waiter.state==='return'){
    if(move(waiter,dt))waiter.state='idle'
  }
 }
-function emberProgress(){let a=s.ember===1?0:s.ember===2?5:s.ember===3?14:30,b=nextThreshold();return Math.max(0,Math.min(1,(s.served-a)/Math.max(1,b-a)))}
-function questCheck(){
- if(s.quest===0&&s.served>=1){s.quest=1;toast('Primeiro hóspede feliz ✨')}
- if(s.quest===1&&s.lvl.reception>=2){s.quest=2;toast('Recepção melhorada!')}
- if(s.quest===2&&s.served>=5){s.quest=3}
- if(s.quest===3&&s.lvl.cafe>=2){s.quest=4}
- if(s.quest===4&&s.served>=14){s.quest=5}
-}
-function questText(){
- if(s.quest===0)return '<b>✨ PRIMEIRA NOITE</b> Veja seu primeiro hóspede completar a estadia.';
- if(s.quest===1)return '<b>🛎️ PRIMEIRO UPGRADE</b> Toque na Recepção e melhore o balcão.';
- if(s.quest===2)return '<b>🔥 ALIMENTE A EMBER</b> Atenda <em>'+s.served+'/5</em> hóspedes para abrir outro quarto.';
- if(s.quest===3)return '<b>☕ MAIS SERVIÇO</b> Melhore o Café da Ember para aumentar cada conta.';
- if(s.quest===4)return '<b>🌿 PRÓXIMA ÁREA</b> Atenda <em>'+s.served+'/14</em> hóspedes para abrir o jardim.';
- return '<b>🔥 EMBER RESORT</b> Continue evoluindo setores e veja a pousada crescer.';
-}
-function openPanel(id){
- sel=id;U.panel.classList.remove('hidden');U.pname.textContent=stationName(id);
- if(id==='ember'){
-   U.psub.textContent='Coração da pousada · Nível '+s.ember;
-   let need=Math.max(0,nextThreshold()-s.served);
-   U.peffect.innerHTML='<div class="embernote">A Ember cresce com <b>hóspedes felizes</b>. Ela não usa barra de energia: a própria chama muda, alcança novas áreas e libera setores.</div>';
-   U.pnext.textContent=need?('Faltam '+need+' hóspedes felizes para o próximo marco.'):'A Ember está pronta para mudar.';
-   U.upgrade.style.display='none';return;
+function updateCleaner(dt){
+ cleaner.ph+=dt*5.4;
+ if(s.lvl.reception<2){cleaner.state='idle';return}
+ if(cleaner.state==='idle'){
+   let r=!room1.clean&&!room1.occupied?room1:(s.room2&&!room2.clean&&!room2.occupied?room2:null);
+   if(r){r.cleaning=true;cleaner.target=r.id;cleaner.state='toRoom';cleaner.tx=r.door.x-18;cleaner.ty=r.door.y+8}
+ }else if(cleaner.state==='toRoom'){
+   if(move(cleaner,dt)){cleaner.state='clean';cleaner.timer=Math.max(.9,2.9-(s.lvl.reception-2)*.55)}
+ }else if(cleaner.state==='clean'){
+   cleaner.timer-=dt;if(cleaner.timer<=0){let r=cleaner.target==='room2'?room2:room1;r.clean=true;r.cleaning=false;burst(r.cx,r.cy,14,'#dff6e7');cleaner.target=null;cleaner.state='return';cleaner.tx=102;cleaner.ty=425}
+ }else if(cleaner.state==='return'){
+   if(move(cleaner,dt))cleaner.state='idle'
  }
- if((id==='room2'&&!s.unlocked.room2)||(id==='garden'&&!s.unlocked.garden))return;
- U.upgrade.style.display='block';U.psub.textContent='Nível '+s.lvl[id];U.peffect.textContent=stationEffect(id);U.pnext.textContent=stationNext(id);let k=cost(id);U.pcost.textContent='🪙 '+fmt(k);U.upgrade.disabled=s.coins<k
 }
-U.close.onclick=()=>{sel=null;U.panel.classList.add('hidden')};
-U.upgrade.onclick=()=>{if(!sel||sel==='ember')return;let k=cost(sel);if(s.coins<k)return toast('Faltam moedas.');s.coins-=k;s.lvl[sel]++;let p=stationCenter(sel);burst(p.x,p.y,36);toast(stationName(sel)+' evoluiu!');questCheck();openPanel(sel);save()};
-function stationCenter(id){
- let a={reception:[105,205],room1:[160,340],room2:[315,352],cafe:[355,115],garden:[390,165],ember:[235,205]}[id];return I(a[0],a[1],24)
+function coinBurst(value){for(let i=0;i<Math.min(8,3+Math.floor(value/25));i++)fx.push({x:195+Math.random()*28,y:392+Math.random()*15,vx:(Math.random()-.5)*18,vy:-35-Math.random()*30,l:1,r:3,col:'#f0c54c',coin:true})}
+function drawBackground(){
+ let g=x.createLinearGradient(0,0,0,SIZE.h);g.addColorStop(0,'#78afb5');g.addColorStop(.56,'#96c899');g.addColorStop(1,'#2f6558');x.fillStyle=g;x.fillRect(0,0,SIZE.w,SIZE.h);
+ x.fillStyle='#2a6e70';x.beginPath();x.ellipse(300,640,390,145,0,0,7);x.fill();
+ x.fillStyle='#76b77f';x.beginPath();x.ellipse(300,505,350,220,0,0,7);x.fill()
 }
-function stationAt(vx,vy){
- let q=inv(vx,vy),p=q.x,y=q.y;
- if(p>55&&p<155&&y>170&&y<240)return'reception';
- if(p>rooms.room1.x&&p<rooms.room1.x+rooms.room1.w&&y>rooms.room1.y&&y<rooms.room1.y+rooms.room1.h)return'room1';
- if(p>rooms.room2.x&&p<rooms.room2.x+rooms.room2.w&&y>rooms.room2.y&&y<rooms.room2.y+rooms.room2.h)return'room2';
- if(p>285&&p<420&&y>55&&y<165)return'cafe';
- if(p>345&&p<440&&y>135&&y<245)return'garden';
- if(Math.hypot(p-235,y-205)<62)return'ember';
- return null
+function drawInn(){
+ // shadow and main floor
+ x.fillStyle='rgba(0,0,0,.18)';x.beginPath();x.moveTo(300,118);x.lineTo(558,255);x.lineTo(303,552);x.lineTo(42,382);x.closePath();x.fill();
+ let floor=x.createLinearGradient(0,140,0,530);floor.addColorStop(0,'#c48754');floor.addColorStop(1,'#a96f45');x.fillStyle=floor;x.beginPath();x.moveTo(300,108);x.lineTo(550,245);x.lineTo(300,530);x.lineTo(50,375);x.closePath();x.fill();
+ // compact paths / rugs
+ x.fillStyle='#d8b68c';x.beginPath();x.moveTo(300,515);x.lineTo(266,493);x.lineTo(294,352);x.lineTo(327,360);x.closePath();x.fill();
+ x.fillStyle='#c99876';rr(128,252,150,112,20,'#c99876');rr(327,196,145,105,20,'#c39a6a');rr(128,384,150,79,18,'#b98464');
+ // back walls
+ x.fillStyle='#76513d';x.beginPath();x.moveTo(300,108);x.lineTo(550,245);x.lineTo(550,191);x.lineTo(300,55);x.closePath();x.fill();
+ x.fillStyle='#815944';x.beginPath();x.moveTo(50,375);x.lineTo(300,108);x.lineTo(300,55);x.lineTo(50,319);x.closePath();x.fill();
+ x.strokeStyle='#3e2c25';x.lineWidth=3;x.beginPath();x.moveTo(300,55);x.lineTo(300,108);x.lineTo(550,245);x.moveTo(300,108);x.lineTo(50,375);x.stroke();
+ // room partition
+ x.fillStyle='#7b5541';x.fillRect(278,245,8,171);x.fillRect(95,365,185,8);
+ // cafe half-wall
+ x.fillStyle='#76513d';x.fillRect(382,278,128,7);
+ // locked wing / room 2 divider
+ if(!s.room2){x.fillStyle='#344d45';x.beginPath();x.moveTo(350,360);x.lineTo(505,302);x.lineTo(505,442);x.lineTo(388,497);x.closePath();x.fill();drawLockedDoor()}else{drawRoom2()}
 }
-c.addEventListener('pointerup',e=>{let vx=(e.clientX-view.ox)/view.scale,vy=(e.clientY-view.oy)/view.scale,id=stationAt(vx,vy);if(!id)return;
- if((id==='room2'&&!s.unlocked.room2)||(id==='garden'&&!s.unlocked.garden)){toast('🔥 A Ember ainda não alcança esta área.');return}
- if((id==='room1'||id==='room2')&&s.lvl.reception<2&&!rooms[id].clean&&!rooms[id].occupied){rooms[id].clean=true;let p=stationCenter(id);burst(p.x,p.y,18);toast('Quarto limpo ✨');return}
- openPanel(id)
-});
-function nat(idx,a,b,size=58){let p=I(a,b);return strip(imgs.nature,idx,64,p.x-size/2,p.y-size*.78,size,size)}
-function drawBg(){
- let g=x.createLinearGradient(0,0,0,V.h);g.addColorStop(0,'#6da8b5');g.addColorStop(.46,'#9cc9a9');g.addColorStop(1,'#315e4c');x.fillStyle=g;x.fillRect(0,0,V.w,V.h);
- x.fillStyle='#2c6d70';x.beginPath();x.ellipse(270,700,420,170,0,0,7);x.fill();
- x.fillStyle='#7fbf8d';x.beginPath();x.ellipse(270,490,355,270,0,0,7);x.fill();
- [[10,80,0,74],[65,50,2,68],[445,72,1,76],[485,120,0,70],[32,470,1,76],[475,465,2,72],[80,550,3,60],[430,550,0,74]].forEach(a=>nat(a[2],a[0],a[1],a[3]))
+function drawLockedDoor(){
+ // a real door, not a floating lock
+ rr(441,315,70,92,7,'#4e3b31');rr(449,323,54,76,5,'#2f2925');
+ for(let i=0;i<4;i++)line(454,335+i*15,498,335+i*15,3,'#6d5847');
+ x.fillStyle='#d7b66d';x.font='700 11px system-ui';x.textAlign='center';x.fillText('🔥 6',476,420);x.textAlign='left';
+ if(emberProgress()>.55){x.save();x.globalAlpha=.22+.25*Math.sin(performance.now()/250);x.fillStyle='#ff9d3c';x.shadowColor='#ff9738';x.shadowBlur=26;x.fillRect(454,329,44,64);x.restore()}
 }
-function floor(){
- let p=polyRect(35,35,425,420);x.shadowColor='#0007';x.shadowBlur=25;pathPoly(p,'#a76f43');x.shadowBlur=0;
- // rugs / zones
- pathPoly(polyRect(55,165,115,85),'#7d4d37','#d8a471');
- pathPoly(polyRect(280,50,150,125),'#c99158','#f0c987');
- pathPoly(polyRect(80,270,155,135),'#9a765c','#d9ad85');
- pathPoly(polyRect(240,285,150,135),s.unlocked.room2?'#8c735e':'#3c5147',s.unlocked.room2?'#d9ad85':'#658175');
- pathPoly(polyRect(335,125,115,130),s.unlocked.garden?'#6f9a62':'#355247',s.unlocked.garden?'#b7d49a':'#55766b');
- // front deck / entrance
- pathPoly(polyRect(0,185,80,60),'#8d623f','#cda477')
+function drawRoom1(){drawBed(155,286,s.lvl.room1,room1);drawSideTable(235,286,s.lvl.room1)}
+function drawRoom2(){x.fillStyle='#c69b77';rr(360,343,154,118,18,'#c69b77');drawBed(430,390,s.lvl.room2,room2);drawSideTable(492,372,s.lvl.room2)}
+function drawBed(cx,cy,lv,r){
+ x.fillStyle='#6b4735';rr(cx-48,cy-24,96,65,10,'#6b4735');
+ rr(cx-43,cy-19,86,52,10,lv>=3?'#c9878b':'#c69480');
+ rr(cx-36,cy-15,72,19,9,'#f6ead7');
+ if(lv>=2){rr(cx-42,cy+8,84,22,8,'#9f6859');x.fillStyle='#f2c263';x.beginPath();x.arc(cx+48,cy+28,5,0,7);x.fill()}
+ if(lv>=3){line(cx-48,cy-24,cx-48,cy-44,5,'#684331');line(cx+48,cy-24,cx+48,cy-44,5,'#684331');line(cx-48,cy-44,cx+48,cy-44,5,'#684331')}
+ if(!r.clean){x.save();x.translate(cx,cy+7);x.rotate(-.22);rr(-29,-7,58,22,7,'#a97768');x.restore();x.fillStyle='#7f5e4a';x.beginPath();x.ellipse(cx+39,cy+37,13,7,.2,0,7);x.fill();manualCleanPulse=.5+.5*Math.sin(performance.now()/180);if(s.lvl.reception<2){x.strokeStyle='rgba(255,235,170,'+(.2+.45*manualCleanPulse)+')';x.lineWidth=3;x.beginPath();x.ellipse(cx,cy+8,62,42,0,0,7);x.stroke()}}
 }
-function wallLine(a,b,c,d,h=28,col='#6c4936'){
- let p1=I(a,b),p2=I(c,d),q2=I(c,d,h),q1=I(a,b,h);pathPoly([p1,p2,q2,q1],col,'#412f27')
+function drawSideTable(cx,cy,lv){rr(cx-12,cy-4,24,22,5,'#79513b');if(lv>=2){x.fillStyle='#ffd57a';x.beginPath();x.arc(cx,cy-9,5,0,7);x.fill();line(cx,cy-4,cx,cy+4,2,'#5f4937')}if(lv>=3){x.fillStyle='#77a66d';x.beginPath();x.arc(cx+13,cy-5,6,0,7);x.fill()}}
+function drawReception(){
+ let lv=s.lvl.reception,w=lv>=3?128:lv>=2?112:96;
+ rr(140,392,w,48,10,lv>=3?'#8d5a3d':'#795039');rr(148,399,w-16,11,5,'#d5a16a');
+ // register
+ rr(188,378,33,20,5,'#3f4a45');rr(192,381,25,7,3,'#a8b4aa');
+ if(registerPulse>0){x.fillStyle='#d4b475';x.fillRect(190,397,30,6)}
+ // physical coin pile
+ let stacks=Math.min(7,Math.floor(Math.log10(Math.max(10,s.coins))*2.4));
+ for(let i=0;i<stacks;i++){x.fillStyle='#f3c84f';x.beginPath();x.ellipse(235+i*4,410-i*3,7,3,0,0,7);x.fill();x.strokeStyle='#a77d25';x.stroke()}
+ if(lv>=2){x.fillStyle='#6d9c68';x.beginPath();x.arc(159,386,8,0,7);x.fill()}
+ if(lv>=3){rr(132,446,117,15,7,'#8e5b3d');x.fillStyle='#e9d0a0';x.fillRect(145,450,88,4)}
 }
-function walls(){
- wallLine(35,35,460,35,35,'#6d4d38');wallLine(35,35,35,455,35,'#76523c');
- wallLine(80,270,235,270,22,'#78533e');wallLine(80,270,80,405,22,'#795540');
- if(s.unlocked.room2){wallLine(240,285,390,285,22,'#73503d')}
+function drawCafe(){
+ let lv=s.lvl.cafe;
+ rr(366,212,132,54,10,lv>=3?'#91603f':'#7e5439');rr(374,219,116,10,5,'#d6a36b');
+ // coffee machine
+ rr(397,183,44,35,7,'#505855');x.fillStyle='#b7c1bd';x.fillRect(403,190,32,10);x.fillStyle='#684733';x.beginPath();x.arc(419,213,5,0,7);x.fill();
+ // steam
+ x.fillStyle='rgba(255,255,255,.56)';for(let i=0;i<1+Math.min(3,lv);i++){x.beginPath();x.arc(408+i*9,181-(performance.now()/380+i*7)%16,4+i*.5,0,7);x.fill()}
+ if(lv>=2){rr(452,183,34,27,6,'#c89b65');for(let i=0;i<3;i++){x.fillStyle=['#d76854','#efc066','#d98a5f'][i];x.beginPath();x.arc(460+i*8,190+i%2*5,4,0,7);x.fill()}}
+ if(lv>=3){rr(378,164,102,17,7,'#6c4634');x.fillStyle='#ffe1a4';x.font='700 9px system-ui';x.textAlign='center';x.fillText('CAFÉ DA EMBER',429,176);x.textAlign='left'}
 }
-function reception(){
- let l=s.lvl.reception,p=I(105,205,8);pathPoly(polyRect(72,185,70+Math.min(3,l)*8,34,8),'#775039','#d6a36b');
- x.font='18px system-ui';x.textAlign='center';x.fillText('🛎️',p.x,p.y-9);
- if(l>=2){x.fillStyle='#f3bd6f';x.beginPath();x.arc(p.x+31,p.y-5,5,0,7);x.fill()}
- if(l>=3){x.fillStyle='#7ab07a';x.beginPath();x.arc(p.x-32,p.y-7,7,0,7);x.fill()}
- x.textAlign='left'
- // physical cash pile: enough to read progress without a large HUD
- let stack=Math.min(6,Math.floor(Math.log10(Math.max(10,s.coins))*2));
- for(let i=0;i<stack;i++){let q=I(145+i*6,232-i*2,10);x.fillStyle='#f5c94f';x.beginPath();x.ellipse(q.x,q.y,7,3,0,0,7);x.fill();x.strokeStyle='#b78320';x.stroke()}
+function drawEmber(){
+ let idx=Math.min(4,s.ember-1),cx=300,cy=349,size=88+idx*11,prog=emberProgress();
+ // stone hearth
+ for(let i=0;i<10;i++){let a=i/10*Math.PI*2;x.fillStyle=i%2?'#68594b':'#766454';x.beginPath();x.ellipse(cx+Math.cos(a)*38,cy+Math.sin(a)*16,13,7,a,0,7);x.fill()}
+ x.save();x.globalCompositeOperation='lighter';let g=x.createRadialGradient(cx,cy-29,3,cx,cy-29,80+idx*12);g.addColorStop(0,'#fff2a88a');g.addColorStop(.42,'#ff96394a');g.addColorStop(1,'#ff6f1200');x.fillStyle=g;x.beginPath();x.arc(cx,cy-29,82+idx*10,0,7);x.fill();x.restore();
+ x.save();x.shadowColor='#ff9134';x.shadowBlur=25+idx*7;if(!sprite(imgs.embers,idx,72,cx-size/2,cy-size*.78,size,size)){x.fillStyle='#ff8a38';x.beginPath();x.arc(cx,cy-29,25,0,7);x.fill()}x.restore();
+ // progress ring is attached to the hearth itself
+ x.strokeStyle='#ffffff20';x.lineWidth=4;x.beginPath();x.ellipse(cx,cy,54,22,0,0,7);x.stroke();x.strokeStyle='#ffd169';x.shadowColor='#ff973b';x.shadowBlur=6;x.beginPath();x.ellipse(cx,cy,54,22,0,-Math.PI/2,-Math.PI/2+Math.PI*2*prog);x.stroke();x.shadowBlur=0
 }
-function bed(id){
- let r=rooms[id],l=s.lvl[id]||1,p=polyRect(r.x+22,r.y+22,r.w-44,r.h-48,5);pathPoly(p,l>=3?'#d9a6a0':'#c88f78','#f2c6a9');
- let h=I(r.x+r.w*.42,r.y+30,11);x.fillStyle='#f9ead4';x.beginPath();x.ellipse(h.x,h.y,24,10,-.22,0,7);x.fill();
- if(l>=2){let a=I(r.x+18,r.y+r.h-18,8);x.fillStyle='#f2c468';x.beginPath();x.arc(a.x,a.y,6,0,7);x.fill()}
- if(l>=3){let a=I(r.x+r.w-18,r.y+18,5);x.fillStyle='#6ca56c';x.beginPath();x.arc(a.x,a.y,8,0,7);x.fill()}
- if(!r.clean){let d=I(r.x+r.w*.62,r.y+r.h*.55,22),pulse=1+Math.sin(performance.now()/220)*.08;x.save();x.translate(d.x,d.y);x.scale(pulse,pulse);x.font='16px system-ui';x.textAlign='center';x.fillText(s.lvl.reception<2?'👆🧹':'🧹',0,0);x.restore();x.textAlign='left'}
- if(r.occupied){let z=I(r.x+r.w*.55,r.y+r.h*.46,34);x.fillStyle='#fff5d6';x.font='700 12px system-ui';x.fillText('zZ',z.x,z.y)}
+function drawEntrance(){
+ // door / front step
+ rr(271,515,58,19,7,'#876049');rr(278,502,44,27,7,'#564238');x.fillStyle='#f2cb7c';x.beginPath();x.arc(315,516,3,0,7);x.fill()
 }
-function cafe(){
- let l=s.lvl.cafe;pathPoly(polyRect(300,65,105,32,8),'#7c5538','#d6a46d');pathPoly(polyRect(315,115,42,42,3),'#b87f4d','#e2b47a');
- let p=I(345,78,18);x.fillStyle='rgba(255,255,255,.55)';for(let i=0;i<1+Math.min(3,l);i++){x.beginPath();x.arc(p.x+i*5,p.y-10-(performance.now()/450+i*4)%14,4+i,0,7);x.fill()}
- if(l>=2)pathPoly(polyRect(370,115,35,35,3),'#b87f4d','#e2b47a');
- if(l>=3){let sgn=I(345,52,34);rr(sgn.x-28,sgn.y-10,56,18,7,'#6a4332');x.fillStyle='#ffe0a5';x.font='700 8px system-ui';x.textAlign='center';x.fillText('CAFÉ',sgn.x,sgn.y+2);x.textAlign='left'}
+function drawStaff(){
+ drawPerson(receptionist,'receptionist',1.05);drawPerson(cook,'cook',1.0);drawPerson(waiter,'waiter',1.0);
+ if(s.lvl.reception>=2){drawPerson(cleaner,'cleaner',1.0);if(s.lvl.reception>=3){rr(cleaner.x-28,cleaner.y+8,31,19,6,'#7c6048');x.fillStyle='#9bc7b6';x.beginPath();x.arc(cleaner.x-20,cleaner.y+28,5,0,7);x.arc(cleaner.x-1,cleaner.y+28,5,0,7);x.fill()}}
 }
-function garden(){
- if(!s.unlocked.garden){let p=I(390,185,20);x.globalAlpha=.75;x.font='22px system-ui';x.textAlign='center';x.fillText('🔒',p.x,p.y);x.globalAlpha=1;x.textAlign='left';return}
- [[370,150,0,50],[420,155,1,48],[390,220,3,44]].forEach(a=>nat(a[2],a[0],a[1],a[3]));
- pathPoly(polyRect(375,175,50,24,5),'#8e603d','#c8a06d');
- let p=I(397,190,18);x.fillStyle='#82c6ca';x.beginPath();x.ellipse(p.x,p.y,24,8,0,0,7);x.fill();
- if(s.lvl.garden>=2){x.fillStyle='#ffd77a';for(let i=0;i<3;i++){let q=I(360+i*28,235,18);x.beginPath();x.arc(q.x,q.y,3,0,7);x.fill()}}
+function drawGuest(){
+ if(!guest)return;drawPerson(guest,guest.role,1.05);
+ if(guest.state==='keyTransfer'){
+   let t=guest.keyT||0,ax=194,ay=382,bx=guest.x+10,by=guest.y-31,q=1-(1-t)*(1-t);drawKey(ax+(bx-ax)*q,ay+(by-ay)*q,1)
+ }
+ if(guest.state==='rest'){let r=guest.room==='room2'?room2:room1;x.fillStyle='#fff4cf';x.font='700 12px system-ui';x.fillText('zZ',r.cx+26,r.cy-28)}
 }
-function ember(){
- let idx=Math.min(4,s.ember-1),p=I(235,205),size=80+idx*10,t=performance.now()/500,prog=emberProgress();
- x.save();x.globalCompositeOperation='lighter';let g=x.createRadialGradient(p.x,p.y-20,4,p.x,p.y-20,68+idx*10);g.addColorStop(0,'#fff3ad7a');g.addColorStop(.5,'#ff9a3a38');g.addColorStop(1,'#ff6a1400');x.fillStyle=g;x.beginPath();x.arc(p.x,p.y-20,70+idx*10,0,7);x.fill();x.restore();
- x.save();x.shadowColor='#ff8b35';x.shadowBlur=20+idx*5;if(!strip(imgs.embers,idx,72,p.x-size/2,p.y-size*.76,size,size)){x.fillStyle='#ff8a38';x.beginPath();x.arc(p.x,p.y-20,22+idx*5,0,7);x.fill()}x.restore();
- x.strokeStyle='rgba(255,216,116,'+(.25+.12*Math.sin(t))+')';x.lineWidth=2;x.beginPath();x.ellipse(p.x,p.y,48+idx*7,13+idx*2,0,0,7);x.stroke();
- // circular visual progress: no happiness counter in the HUD
- x.save();x.translate(p.x,p.y-17);x.rotate(-Math.PI/2);x.strokeStyle='rgba(255,255,255,.16)';x.lineWidth=4;x.beginPath();x.arc(0,0,49+idx*5,0,Math.PI*2);x.stroke();x.strokeStyle='#ffd46d';x.shadowColor='#ff983a';x.shadowBlur=8;x.beginPath();x.arc(0,0,49+idx*5,0,Math.PI*2*prog);x.stroke();x.restore()
+function drawMachineHints(){
+ // service handoff is shown with physical trays/keys; only the future wing gets a physical plaque.
+ if(!s.room2&&emberProgress()>.72){x.save();x.globalAlpha=.45+.4*Math.sin(performance.now()/220);line(338,350,452,343,3,'#ffae4b');x.restore()}
 }
-function drawCharacter(v,kind){
- let p=I(v.x,v.y,18),idx={receptionist:2,cook:1,cleaner:0,resident:5,farmer:3,delivery:4}[kind||v.role]??5,bob=Math.sin((v.ph||0))*1.3,size=46;
- x.save();x.translate(p.x,p.y+bob);let flip=(v.tx||v.x)<v.x;if(flip)x.scale(-1,1);if(!strip(imgs.citizens,idx,52,-size/2,-size*.74,size,size)){x.fillStyle='#e4a36f';x.beginPath();x.arc(0,-8,12,0,7);x.fill()}x.restore();
- let carry=v.carry;if(carry){x.font='13px system-ui';x.textAlign='center';x.fillText(carry,p.x+10,p.y-31+bob);x.textAlign='left'}
-}
-function staff(){
- drawCharacter({x:120,y:185,tx:120,ph:performance.now()/450},'receptionist');
- if(s.lvl.reception>=3)drawCharacter({x:145,y:205,tx:145,ph:performance.now()/520},'resident');
- drawCharacter({x:305,y:94,tx:305,ph:performance.now()/480},'cook');
- drawCharacter(waiter,'merchant');
- if(s.lvl.cafe>=3)drawCharacter({x:390,y:96,tx:390,ph:performance.now()/530},'merchant');
- if(s.lvl.reception>=2){drawCharacter(cleaner,'cleaner');if(s.lvl.reception>=3){let p=I(cleaner.x-18,cleaner.y+8,8);x.font='17px system-ui';x.fillText('🛒',p.x,p.y)}}
-}
-function locks(){
- if(!s.unlocked.room2){let p=I(315,350,35);x.fillStyle='#e2c58f';x.font='700 12px system-ui';x.textAlign='center';x.fillText('🔥 5',p.x,p.y);x.textAlign='left'}
- if(!s.unlocked.garden){let p=I(392,185,42);x.fillStyle='#e2c58f';x.font='700 12px system-ui';x.textAlign='center';x.fillText('🔥 14',p.x,p.y);x.textAlign='left'}
-}
-function fx(){
- particles.forEach(p=>{x.globalAlpha=p.l;x.fillStyle='#ffd47c';x.beginPath();x.arc(p.x,p.y,p.r,0,7);x.fill();x.globalAlpha=1});
- coinsFx.forEach(p=>{x.globalAlpha=p.l;x.font='12px system-ui';x.fillText('🪙',p.x,p.y);x.globalAlpha=1});
- embersFx.forEach(p=>{let e=I(235,205,28),q=p.t,pX=p.x+(e.x-p.x)*q,pY=p.y+(e.y-p.y)*q-40*Math.sin(q*Math.PI);x.globalAlpha=p.l;x.fillStyle='#ff8b77';x.font='12px system-ui';x.textAlign='center';x.fillText('♥',pX,pY);x.textAlign='left';x.globalAlpha=1})
+function drawFx(){
+ fx.forEach(p=>{x.globalAlpha=p.l;if(p.coin){x.fillStyle='#f0c54c';x.beginPath();x.ellipse(p.x,p.y,6,3,0,0,7);x.fill()}else{x.fillStyle=p.col;x.beginPath();x.arc(p.x,p.y,p.r,0,7);x.fill()}x.globalAlpha=1});
+ hearts.forEach(h=>{let ex=300,ey=315,q=h.t,px=h.x+(ex-h.x)*q,py=h.y+(ey-h.y)*q-62*Math.sin(q*Math.PI);x.globalAlpha=h.l;x.fillStyle='#ff8b78';x.font='18px system-ui';x.textAlign='center';x.fillText('♥',px,py);x.textAlign='left';x.globalAlpha=1})
 }
 function draw(){
- x.setTransform(view.dpr,0,0,view.dpr,0,0);x.clearRect(0,0,innerWidth,innerHeight);
- x.setTransform(view.dpr*view.scale,0,0,view.dpr*view.scale,view.dpr*view.ox,view.dpr*view.oy);
- drawBg();floor();walls();reception();bed('room1');if(s.unlocked.room2)bed('room2');cafe();garden();ember();staff();
- guests.slice().sort((a,b)=>a.y-b.y).forEach(g=>drawCharacter(g,g.role));locks();fx()
+ x.setTransform(dpr,0,0,dpr,0,0);x.clearRect(0,0,innerWidth,innerHeight);
+ x.setTransform(dpr*scale,0,0,dpr*scale,dpr*ox,dpr*oy);
+ drawBackground();drawInn();drawRoom1();drawCafe();drawReception();drawEntrance();drawEmber();drawMachineHints();drawStaff();drawGuest();drawFx()
 }
 function update(dt){
- spawnTimer-=dt;if(spawnTimer<=0){spawnGuest();spawnTimer=Math.max(2.8,7.5-s.lvl.reception*.45)}
- guests.forEach(g=>updateGuest(g,dt));guests=guests.filter(g=>!g.dead);updateCleaner(dt);updateWaiter(dt);
- particles.forEach(p=>{p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=55*dt;p.l-=dt*.9});particles=particles.filter(p=>p.l>0);
- coinsFx.forEach(p=>{p.y+=p.vy*dt;p.l-=dt*.75});coinsFx=coinsFx.filter(p=>p.l>0);
- embersFx.forEach(p=>{p.t+=dt*1.25;p.l=1-p.t});embersFx=embersFx.filter(p=>p.t<1);
- U.coins.textContent=fmt(s.coins);U.quest.innerHTML=questText();if(sel&&sel!=='ember')U.upgrade.disabled=s.coins<cost(sel)
+ receptionist.ph+=dt*4;cook.ph+=dt*5;registerPulse=Math.max(0,registerPulse-dt*2.2);doorPulse=Math.max(0,doorPulse-dt);
+ if(!guest){spawnIn-=dt;if(spawnIn<=0)spawnGuest()}
+ updateGuest(dt);updateWaiter(dt);updateCleaner(dt);
+ fx.forEach(p=>{p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=60*dt;p.l-=dt*.9});fx=fx.filter(p=>p.l>0);
+ hearts.forEach(h=>{h.t+=dt*1.15;h.l=1-h.t});hearts=hearts.filter(h=>h.t<1);
+ U.coins.textContent=fmt(s.coins);U.objective.innerHTML=objective();if(selected)U.upgrade.disabled=s.coins<cost(selected)
 }
-function loop(now){let dt=Math.min(.05,(now-last)/1000);last=now;update(dt);draw();requestAnimationFrame(loop)}
+function stationAt(px,py){
+ if(px>130&&px<275&&py>365&&py<455)return'reception';
+ if(px>110&&px<260&&py>235&&py<355)return'room1';
+ if(px>350&&px<515&&py>165&&py<285)return'cafe';
+ if(s.room2&&px>350&&px<520&&py>330&&py<475)return'room2';
+ if(px>262&&px<338&&py>294&&py<390)return'ember';
+ if(!s.room2&&px>430&&px<525&&py>300&&py<430)return'locked';
+ return null
+}
+function openStation(id){
+ if(id==='ember'){let need=Math.max(0,nextEmber()-s.served);toast(need?'🔥 Faltam '+need+' hóspedes felizes.':'🔥 A Ember está pronta.');return}
+ if(id==='locked'){toast('🔥 A luz da Ember ainda não alcança esta porta.');return}
+ if((id==='room1'||id==='room2')){let r=id==='room2'?room2:room1;if(!r.clean&&!r.occupied&&s.lvl.reception<2){r.cleaning=true;burst(r.cx,r.cy,16,'#eff8e7');setTimeout(()=>{r.clean=true;r.cleaning=false;toast('Quarto limpo ✨')},650);return}}
+ selected=id;let lv=s.lvl[id],k=cost(id);U.sheet.classList.remove('hidden');U.stationName.textContent={reception:'Recepção',room1:'Quarto',room2:'Quarto da Ala Nova',cafe:'Café da Ember'}[id];U.stationLevel.textContent='Nível '+lv;
+ if(id==='reception'){U.stationEffect.textContent=lv===1?'Check-in manual e limpeza por toque.':'Camareira automática'+(lv>=3?' com carrinho e check-in acelerado.':'.');U.stationNext.textContent=lv===1?'Próximo: contrata camareira e aumenta o balcão.':'Próximo: atendimento mais rápido e visual mais rico.'}
+ if(id==='room1'||id==='room2'){U.stationEffect.textContent='Diária: 🪙 '+roomPay(id)+' · estadia '+stayTime(id).toFixed(1)+'s.';U.stationNext.textContent='Próximo: cama melhor, decoração e diária maior.'}
+ if(id==='cafe'){U.stationEffect.textContent='O garçom leva uma bandeja física até o quarto. Serviço: '+serviceTime().toFixed(1)+'s.';U.stationNext.textContent='Próximo: máquina melhor, vitrine e entrega mais rápida.'}
+ U.upgradeCost.textContent='🪙 '+fmt(k);U.upgrade.disabled=s.coins<k
+}
+U.close.onclick=()=>{selected=null;U.sheet.classList.add('hidden')};
+U.upgrade.onclick=()=>{if(!selected)return;let k=cost(selected);if(s.coins<k)return toast('Faltam moedas.');s.coins-=k;s.lvl[selected]++;let pos={reception:[205,405],room1:[158,290],room2:[438,382],cafe:[430,225]}[selected];burst(pos[0],pos[1],30,'#ffd36d');if(selected==='reception'&&s.lvl.reception===2)toast('🧹 Camareira contratada!');else toast('Upgrade visível aplicado ✨');checkProgress();openStation(selected);save()};
+c.addEventListener('pointerup',e=>{let px=(e.clientX-ox)/scale,py=(e.clientY-oy)/scale,id=stationAt(px,py);if(id)openStation(id)});
 function offline(){
- let sec=Math.min(28800,Math.max(0,(Date.now()-s.last)/1000));if(sec<45)return;
- let roomsN=s.unlocked.room2?2:1,cycle=Math.max(checkinTime()+2,(roomTime('room1')+cafeTime())/roomsN),n=Math.min(80,Math.floor(sec/cycle*.22)),avg=roomPay('room1')+cafePay()+8+s.lvl.reception*3+(s.unlocked.garden?gardenPay():0);if(n<1)return;
- s.pending={guests:n,coins:n*avg};U.offtxt.textContent=n+' hóspedes deixaram cerca de 🪙 '+fmt(s.pending.coins)+'.';U.offline.classList.remove('hidden')
+ let sec=Math.min(28800,Math.max(0,(Date.now()-s.last)/1000));if(sec<60)return;
+ let avg=roomPay('room1')+cafePay()+8+s.lvl.reception*3,cycle=checkinTime()+stayTime('room1')+serviceTime()+5,n=Math.min(80,Math.floor(sec/cycle*.3));if(n<1)return;
+ s.pending={n,coins:n*avg};U.offlineText.textContent=n+' ciclos renderam cerca de 🪙 '+fmt(s.pending.coins)+'.';U.offline.classList.remove('hidden')
 }
-U.collect.onclick=()=>{if(!s.pending)return;s.coins+=s.pending.coins;s.served+=s.pending.guests;s.flameXp+=s.pending.guests;s.pending=null;U.offline.classList.add('hidden');unlockCheck();questCheck();save();toast('A pousada acordou mais rica ✨')};
-offline();unlockCheck();questCheck();save();setTimeout(()=>U.tip&&U.tip.classList.add('gone'),5000);
-document.addEventListener('visibilitychange',()=>{if(document.hidden)save()});addEventListener('beforeunload',save);setInterval(save,5000);requestAnimationFrame(loop)
+U.collect.onclick=()=>{if(!s.pending)return;s.coins+=s.pending.coins;s.served+=s.pending.n;s.pending=null;U.offline.classList.add('hidden');checkProgress();save();toast('A máquina continuou trabalhando ✨')};
+function loop(now){let dt=Math.min(.05,(now-last)/1000);last=now;update(dt);draw();requestAnimationFrame(loop)}
+offline();checkProgress();save();document.addEventListener('visibilitychange',()=>{if(document.hidden)save()});addEventListener('beforeunload',save);setInterval(save,5000);requestAnimationFrame(loop)
 })();
 </script>
 </body>
