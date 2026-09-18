@@ -1,0 +1,51 @@
+[gd_scene load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://scripts/receptionist.gd" id="1_receptionist"]
+
+[sub_resource type="StandardMaterial3D" id="BodyMaterial"]
+albedo_color = Color(0.22, 0.45, 0.68, 1)
+roughness = 0.9
+
+[sub_resource type="CapsuleMesh" id="BodyMesh"]
+material = SubResource("BodyMaterial")
+radius = 0.29
+height = 0.96
+radial_segments = 12
+rings = 4
+
+[sub_resource type="StandardMaterial3D" id="HeadMaterial"]
+albedo_color = Color(0.94, 0.70, 0.50, 1)
+roughness = 0.95
+
+[sub_resource type="SphereMesh" id="HeadMesh"]
+material = SubResource("HeadMaterial")
+radius = 0.23
+height = 0.46
+radial_segments = 12
+rings = 6
+
+[sub_resource type="StandardMaterial3D" id="ApronMaterial"]
+albedo_color = Color(0.93, 0.82, 0.63, 1)
+roughness = 0.95
+
+[node name="Receptionist" type="Node3D"]
+script = ExtResource("1_receptionist")
+
+[node name="VisualRoot" type="Node3D" parent="."]
+
+[node name="Body" type="MeshInstance3D" parent="VisualRoot"]
+position = Vector3(0, 0.60, 0)
+mesh = SubResource("BodyMesh")
+cast_shadow = 1
+
+[node name="Head" type="MeshInstance3D" parent="VisualRoot"]
+position = Vector3(0, 1.25, 0)
+mesh = SubResource("HeadMesh")
+cast_shadow = 1
+
+[node name="Apron" type="MeshInstance3D" parent="VisualRoot"]
+position = Vector3(0, 0.62, 0.22)
+mesh = SubResource("BodyMesh")
+scale = Vector3(0.62, 0.68, 0.18)
+material_override = SubResource("ApronMaterial")
+cast_shadow = 1
