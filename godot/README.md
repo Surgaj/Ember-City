@@ -38,3 +38,12 @@ The current structure establishes the future visual flow:
 `front entrance → lobby/reception → Ember core → room / café → future wing`
 
 The next milestone should work on the **surroundings and exterior footprint only**, without adding gameplay yet.
+
+
+## Web preview
+
+Every push to `godot-rebuild` is exported automatically with Godot 4.7.2 and published inside the existing GitHub Pages site at:
+
+`https://surgaj.github.io/Ember-City/godot-preview/`
+
+The preview is intentionally separate from the legacy web game on the repository root.
