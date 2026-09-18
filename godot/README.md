@@ -2,9 +2,9 @@
 
 Branch: `godot-rebuild`
 
-## Milestone 0.4 — First Guest
+## Milestone 0.5 — First Service
 
-This milestone keeps the current diorama and adds the **first autonomous guest movement loop**.
+This milestone turns the first guest test into the **first readable service interaction**.
 
 Implemented:
 
@@ -34,7 +34,11 @@ Implemented:
 - one temporary `CharacterBody3D` guest using `NavigationAgent3D`;
 - the guest loops through entrance → reception → lobby → room → sleep → reception → exit;
 - a physical coin is added to the reception after each completed stay;
-- a headless navigation smoke test runs before every Web export.
+- a headless navigation smoke test runs before every Web export;
+- the guest now follows a narrow safe navigation ribbon instead of cutting through props;
+- one receptionist stands behind the counter with an idle/service reaction;
+- check-in and payment emit visible receptionist reactions;
+- the Ember flame now animates continuously with moving flame layers and rising sparks.
 
 Intentionally not implemented yet:
 
@@ -49,7 +53,7 @@ The current structure establishes the future visual flow:
 
 `front entrance → lobby/reception → Ember core → room / café → future wing`
 
-The next milestone should add **one receptionist only** and validate the first visible interaction at check-in. No economy, no multiple guests, no production chain yet.
+The next milestone should refine **the first visible check-in interaction only** — key handoff, bell feedback and clearer reception framing — before adding more guests or staff.
 
 
 ## Web preview
