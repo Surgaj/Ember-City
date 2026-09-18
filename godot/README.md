@@ -2,9 +2,9 @@
 
 Branch: `godot-rebuild`
 
-## Milestone 0.3 — Interior Identity
+## Milestone 0.4 — First Guest
 
-This milestone keeps the architecture and surroundings, and adds the **first readable interior stations**.
+This milestone keeps the current diorama and adds the **first autonomous guest movement loop**.
 
 Implemented:
 
@@ -28,7 +28,13 @@ Implemented:
 - a reception blockout with desk, register, bell and key rack;
 - one recognizable bedroom setup with bed, mattress, pillow and side table;
 - a café blockout with counter, coffee machine, pastry case and stools;
-- simple rugs that reinforce the arrival-to-lobby flow.
+- simple rugs that reinforce the arrival-to-lobby flow;
+- an open bedroom door so the room reads as a private space;
+- a `NavigationRegion3D` with a deterministic test navmesh;
+- one temporary `CharacterBody3D` guest using `NavigationAgent3D`;
+- the guest loops through entrance → reception → lobby → room → sleep → reception → exit;
+- a physical coin is added to the reception after each completed stay;
+- a headless navigation smoke test runs before every Web export.
 
 Intentionally not implemented yet:
 
@@ -43,7 +49,7 @@ The current structure establishes the future visual flow:
 
 `front entrance → lobby/reception → Ember core → room / café → future wing`
 
-The next milestone should add **one temporary test guest only** and validate navigation: entrance → reception → Ember. No economy, no hotel loop, no multiple NPCs yet.
+The next milestone should add **one receptionist only** and validate the first visible interaction at check-in. No economy, no multiple guests, no production chain yet.
 
 
 ## Web preview
