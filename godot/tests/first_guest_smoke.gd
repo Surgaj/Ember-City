@@ -26,6 +26,9 @@ func _run() -> void:
 	var camera := scene.get_node_or_null("IsometricCamera") as Camera3D
 	var ember_collider := scene.get_node_or_null("PhysicsColliders/EmberCollider") as StaticBody3D
 	var reception_collider := scene.get_node_or_null("PhysicsColliders/ReceptionCollider") as StaticBody3D
+	var entrance_left := scene.get_node_or_null("PhysicsColliders/EntrancePostLeftCollider") as StaticBody3D
+	var entrance_right := scene.get_node_or_null("PhysicsColliders/EntrancePostRightCollider") as StaticBody3D
+	var door_leaf_collider := scene.get_node_or_null("PhysicsColliders/BedroomDoorLeafCollider") as StaticBody3D
 
 	if guest == null:
 		_fail("TestGuest was not spawned")
@@ -50,6 +53,9 @@ func _run() -> void:
 		return
 	if ember_collider == null or reception_collider == null:
 		_fail("Physical world colliders are missing")
+		return
+	if entrance_left == null or entrance_right == null or door_leaf_collider == null:
+		_fail("Door-frame physical colliders are missing")
 		return
 
 	var camera_start_position := camera.position
