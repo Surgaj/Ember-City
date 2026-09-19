@@ -77,6 +77,7 @@ func _run() -> void:
 	var start_position := guest.global_position
 	var minimum_ember_distance := 999.0
 	var illegal_wall_crossing := false
+	var previous_guest_pos := guest.global_position
 
 	for sample_index in range(105):
 		await create_timer(0.10).timeout
@@ -87,11 +88,19 @@ func _run() -> void:
 		).length()
 		minimum_ember_distance = minf(minimum_ember_distance, ember_distance)
 
-		var inside_bedroom_side := guest_pos.x < -1.55
-		var in_real_door_gap := guest_pos.z > -1.67 and guest_pos.z < 0.02
-		if inside_bedroom_side and not in_real_door_gap and guest_pos.z > -1.67:
-			illegal_wall_crossing = true
-			break
+		var crossed_partition_line := (
+			(previous_guest_pos.x >= -1.55 and guest_pos.x < -1.55)
+			or (previous_guest_pos.x < -1.55 and guest_pos.x >= -1.55)
+		)
+		if crossed_partition_line:
+			var crossing_z := (previous_guest_pos.z + guest_pos.z) * 0.5
+			var crossing_in_back_wall := crossing_z >= -4.83 and crossing_z <= -1.67
+			var crossing_in_front_wall := crossing_z >= 0.02 and crossing_z <= 1.58
+			if crossing_in_back_wall or crossing_in_front_wall:
+				illegal_wall_crossing = true
+				break
+
+		previous_guest_pos = guest_pos
 
 	var moved_distance := Vector2(
 		guest.global_position.x - start_position.x,
