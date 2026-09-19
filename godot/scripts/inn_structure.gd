@@ -1,7 +1,7 @@
 extends Node3D
 
-# EMBER INN — Godot Rebuild / Milestone 0.7
-# Scope: solid world collision + improved pan/zoom camera controls.
+# EMBER INN — Godot Rebuild / Milestone 0.7.1
+# Scope: full solid-geometry pass for door frames and interior props.
 # Still no economy, upgrades, production chains or multiple guests.
 
 const WALL_HEIGHT := 3.4
@@ -799,7 +799,7 @@ func _build_bedroom_door() -> void:
 		true,
 		interior_props
 	)
-	door_leaf.rotation_degrees.y = -56.0
+	door_leaf.rotation_degrees.y = -82.0
 
 	_cylinder(
 		"BedroomDoorHandle",
@@ -824,11 +824,23 @@ func _build_physics_colliders() -> void:
 
 	_add_box_collider("FutureWingLeftCollider", Vector3(1.15, 2.15, 0.26), Vector3(3.10, 1.075, 1.15))
 	_add_box_collider("FutureWingRightCollider", Vector3(1.00, 2.15, 0.26), Vector3(5.15, 1.075, 1.15))
+	_add_box_collider("FutureDoorPostLCollider", Vector3(0.24, 2.20, 0.30), Vector3(3.70, 1.10, 1.15))
+	_add_box_collider("FutureDoorPostRCollider", Vector3(0.24, 2.20, 0.30), Vector3(4.55, 1.10, 1.15))
 
-	_add_box_collider("ReceptionCollider", Vector3(3.08, 1.16, 0.94), Vector3(-3.25, 0.62, 2.60))
-	_add_box_collider("CafeCounterCollider", Vector3(3.08, 1.10, 0.94), Vector3(3.75, 0.58, -2.42))
-	_add_box_collider("BedCollider", Vector3(2.58, 0.90, 1.72), Vector3(-3.78, 0.48, -2.62))
-	_add_cylinder_collider("EmberCollider", 0.86, 1.10, Vector3(0.0, 0.58, 0.20))
+	# Entrance frame: visual posts now have matching physical posts.
+	_add_box_collider("EntrancePostLeftCollider", Vector3(0.30, 2.55, 0.30), Vector3(-1.12, 1.36, 4.62))
+	_add_box_collider("EntrancePostRightCollider", Vector3(0.30, 2.55, 0.30), Vector3(1.12, 1.36, 4.62))
+
+	# Bedroom door leaf and nearby furniture are fully solid.
+	_add_box_collider("BedroomDoorLeafCollider", Vector3(0.16, 1.78, 1.18), Vector3(-1.18, 1.08, -1.26), -82.0)
+	_add_box_collider("BedsideTableCollider", Vector3(0.68, 0.70, 0.68), Vector3(-2.18, 0.49, -3.25))
+
+	_add_box_collider("ReceptionCollider", Vector3(3.16, 1.20, 1.02), Vector3(-3.25, 0.62, 2.60))
+	_add_box_collider("CafeCounterCollider", Vector3(3.16, 1.14, 1.02), Vector3(3.75, 0.58, -2.42))
+	_add_box_collider("BedCollider", Vector3(2.66, 0.96, 1.80), Vector3(-3.78, 0.48, -2.62))
+	_add_cylinder_collider("CafeStool0Collider", 0.35, 0.76, Vector3(3.15, 0.54, -1.32))
+	_add_cylinder_collider("CafeStool1Collider", 0.35, 0.76, Vector3(4.40, 0.54, -1.32))
+	_add_cylinder_collider("EmberCollider", 0.98, 1.10, Vector3(0.0, 0.58, 0.20))
 
 
 func _add_box_collider(
@@ -876,11 +888,12 @@ func _add_cylinder_collider(
 func _build_navigation_test() -> void:
 	# Safe corridor follows the real architecture and never crosses wall geometry.
 	var navigation_mesh := NavigationMesh.new()
-	var corridor_half_width := 0.34
+	var corridor_half_width := 0.28
 
 	var centerline := [
 		Vector3(0.0, 0.20, 8.75),
-		Vector3(0.0, 0.20, 4.60),
+		Vector3(0.0, 0.20, 5.10),
+		Vector3(0.0, 0.20, 4.05),
 		Vector3(-3.25, 0.20, 3.55),
 		Vector3(-2.25, 0.20, 2.35),
 		Vector3(-0.95, 0.20, 2.00),
@@ -888,9 +901,11 @@ func _build_navigation_test() -> void:
 		Vector3(2.05, 0.20, 0.40),
 		Vector3(1.25, 0.20, -1.50),
 		Vector3(0.00, 0.20, -1.60),
-		Vector3(-0.82, 0.20, -0.82),
-		Vector3(-2.05, 0.20, -0.82),
-		Vector3(-2.05, 0.20, -2.05),
+		Vector3(-0.55, 0.20, -0.35),
+		Vector3(-1.15, 0.20, -0.55),
+		Vector3(-1.95, 0.20, -0.55),
+		Vector3(-2.10, 0.20, -1.35),
+		Vector3(-2.10, 0.20, -2.05),
 	]
 
 	var vertices := PackedVector3Array()
@@ -951,9 +966,9 @@ func _spawn_test_guest() -> void:
 		"spawn": Vector3(0.0, 0.20, 8.20),
 		"reception": Vector3(-3.25, 0.20, 3.55),
 		"lobby": Vector3(1.55, 0.20, 1.80),
-		"room_door_out": Vector3(-0.82, 0.20, -0.82),
-		"room_door_in": Vector3(-2.05, 0.20, -0.82),
-		"bed": Vector3(-2.05, 0.20, -2.05),
+		"room_door_out": Vector3(-1.05, 0.20, -0.55),
+		"room_door_in": Vector3(-1.95, 0.20, -0.55),
+		"bed": Vector3(-2.10, 0.20, -2.05),
 		"exit": Vector3(0.0, 0.20, 8.45),
 	}
 
