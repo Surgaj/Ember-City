@@ -828,7 +828,7 @@ func _build_physics_colliders() -> void:
 	_add_box_collider("ReceptionCollider", Vector3(3.08, 1.16, 0.94), Vector3(-3.25, 0.62, 2.60))
 	_add_box_collider("CafeCounterCollider", Vector3(3.08, 1.10, 0.94), Vector3(3.75, 0.58, -2.42))
 	_add_box_collider("BedCollider", Vector3(2.58, 0.90, 1.72), Vector3(-3.78, 0.48, -2.62))
-	_add_cylinder_collider("EmberCollider", 1.16, 1.10, Vector3(0.0, 0.58, 0.20))
+	_add_cylinder_collider("EmberCollider", 0.86, 1.10, Vector3(0.0, 0.58, 0.20))
 
 
 func _add_box_collider(
@@ -876,7 +876,7 @@ func _add_cylinder_collider(
 func _build_navigation_test() -> void:
 	# Safe corridor follows the real architecture and never crosses wall geometry.
 	var navigation_mesh := NavigationMesh.new()
-	var corridor_half_width := 0.44
+	var corridor_half_width := 0.34
 
 	var centerline := [
 		Vector3(0.0, 0.20, 8.75),
@@ -885,8 +885,9 @@ func _build_navigation_test() -> void:
 		Vector3(-2.25, 0.20, 2.35),
 		Vector3(-0.95, 0.20, 2.00),
 		Vector3(1.55, 0.20, 1.80),
-		Vector3(1.65, 0.20, 0.20),
-		Vector3(0.85, 0.20, -1.18),
+		Vector3(2.05, 0.20, 0.40),
+		Vector3(1.25, 0.20, -1.50),
+		Vector3(0.00, 0.20, -1.60),
 		Vector3(-0.82, 0.20, -0.82),
 		Vector3(-2.05, 0.20, -0.82),
 		Vector3(-2.05, 0.20, -2.05),
