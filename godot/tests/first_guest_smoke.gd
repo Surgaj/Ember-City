@@ -54,7 +54,7 @@ func _run() -> void:
 
 	var camera_start_position := camera.position
 	scene.call("_pan_camera", Vector2(80.0, 0.0))
-	await process_frame
+	await create_timer(0.25).timeout
 	if camera.position.distance_to(camera_start_position) < 0.05:
 		_fail("Camera pan did not move the isometric camera")
 		return
