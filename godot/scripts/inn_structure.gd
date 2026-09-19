@@ -1,7 +1,7 @@
 extends Node3D
 
-# EMBER INN — Godot Rebuild / Milestone 0.6
-# Scope: readable check-in, Ember payment feedback and draggable isometric camera.
+# EMBER INN — Godot Rebuild / Milestone 0.7
+# Scope: solid world collision + improved pan/zoom camera controls.
 # Still no economy, upgrades, production chains or multiple guests.
 
 const WALL_HEIGHT := 3.4
@@ -54,12 +54,17 @@ const RECEPTIONIST_SCENE := preload("res://scenes/receptionist.tscn")
 @onready var surroundings: Node3D = $Surroundings
 @onready var architecture: Node3D = $Architecture
 @onready var interior_props: Node3D = $InteriorProps
+@onready var physics_colliders: Node3D = $PhysicsColliders
 @onready var navigation_region: NavigationRegion3D = $NavigationRegion3D
 @onready var actors: Node3D = $Actors
 
 var camera: Camera3D
 var camera_focus := Vector3(0.0, 0.9, 0.0)
+var camera_focus_target := Vector3(0.0, 0.9, 0.0)
 var camera_offset := Vector3(12.5, 10.1, 13.5)
+var camera_size_target := 17.4
+var touch_points: Dictionary = {}
+var pinch_distance := 0.0
 var ember_light: OmniLight3D
 var ember_react_timer := 0.0
 var ember_flames: Array[MeshInstance3D] = []
@@ -77,6 +82,7 @@ func _ready() -> void:
 	_build_surroundings()
 	_build_structure()
 	_build_interior_identity()
+	_build_physics_colliders()
 	_spawn_receptionist()
 	_build_navigation_test()
 	_spawn_test_guest()
@@ -130,12 +136,52 @@ func _setup_camera() -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if event is InputEventScreenDrag:
-		_pan_camera(event.relative)
+	if event is InputEventScreenTouch:
+		if event.pressed:
+			touch_points[event.index] = event.position
+		else:
+			touch_points.erase(event.index)
+			if touch_points.size() < 2:
+				pinch_distance = 0.0
+
+		if touch_points.size() >= 2:
+			pinch_distance = _current_pinch_distance()
 		get_viewport().set_input_as_handled()
+
+	elif event is InputEventScreenDrag:
+		touch_points[event.index] = event.position
+		if touch_points.size() >= 2:
+			var next_distance := _current_pinch_distance()
+			if pinch_distance > 1.0 and next_distance > 1.0:
+				_zoom_camera(pinch_distance / next_distance)
+			pinch_distance = next_distance
+		else:
+			_pan_camera(event.relative * 0.66)
+		get_viewport().set_input_as_handled()
+
+	elif event is InputEventMagnifyGesture:
+		if event.factor > 0.01:
+			_zoom_camera(1.0 / event.factor)
+		get_viewport().set_input_as_handled()
+
 	elif event is InputEventMouseMotion and (event.button_mask & MOUSE_BUTTON_MASK_LEFT) != 0:
-		_pan_camera(event.relative)
+		_pan_camera(event.relative * 0.62)
 		get_viewport().set_input_as_handled()
+
+	elif event is InputEventMouseButton and event.pressed:
+		if event.button_index == MOUSE_BUTTON_WHEEL_UP:
+			_zoom_camera(0.90)
+			get_viewport().set_input_as_handled()
+		elif event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
+			_zoom_camera(1.10)
+			get_viewport().set_input_as_handled()
+
+
+func _current_pinch_distance() -> float:
+	if touch_points.size() < 2:
+		return 0.0
+	var points := touch_points.values()
+	return (points[0] as Vector2).distance_to(points[1] as Vector2)
 
 
 func _pan_camera(screen_delta: Vector2) -> void:
@@ -151,16 +197,19 @@ func _pan_camera(screen_delta: Vector2) -> void:
 	right = right.normalized()
 
 	var forward_flat := Vector3(-camera_offset.x, 0.0, -camera_offset.z).normalized()
-	var world_per_pixel := camera.size / viewport_size.y
+	var world_per_pixel := camera_size_target / viewport_size.y
 	var delta_world := (
 		-right * screen_delta.x +
 		forward_flat * screen_delta.y
-	) * world_per_pixel * 1.18
+	) * world_per_pixel
 
-	camera_focus += delta_world
-	camera_focus.x = clampf(camera_focus.x, -4.6, 4.6)
-	camera_focus.z = clampf(camera_focus.z, -3.4, 4.2)
-	_apply_camera_pose()
+	camera_focus_target += delta_world
+	camera_focus_target.x = clampf(camera_focus_target.x, -4.8, 4.8)
+	camera_focus_target.z = clampf(camera_focus_target.z, -3.6, 4.4)
+
+
+func _zoom_camera(multiplier: float) -> void:
+	camera_size_target = clampf(camera_size_target * multiplier, 9.8, 23.5)
 
 
 func _apply_camera_pose() -> void:
@@ -172,6 +221,10 @@ func _apply_camera_pose() -> void:
 
 func _process(_delta: float) -> void:
 	var ticks := float(Time.get_ticks_msec()) * 0.006
+	var camera_lerp := 1.0 - exp(-_delta * 9.0)
+	camera_focus = camera_focus.lerp(camera_focus_target, camera_lerp)
+	camera.size = lerpf(camera.size, camera_size_target, camera_lerp)
+	_apply_camera_pose()
 
 	ember_react_timer = maxf(0.0, ember_react_timer - _delta)
 	var reaction := ember_react_timer / 0.75 if ember_react_timer > 0.0 else 0.0
@@ -247,7 +300,9 @@ func _fit_camera() -> void:
 		return
 
 	var aspect := viewport_size.x / viewport_size.y
-	camera.size = 17.4 if aspect < 0.75 else 14.8
+	camera_size_target = 17.4 if aspect < 0.75 else 14.8
+	camera.size = camera_size_target
+	camera_focus_target = camera_focus
 	_apply_camera_pose()
 
 
@@ -758,21 +813,83 @@ func _build_bedroom_door() -> void:
 	)
 
 
+func _build_physics_colliders() -> void:
+	# Walls and important stations are now physically solid, not just visual meshes.
+	_add_box_collider("BackWallCollider", Vector3(12.1, 3.4, 0.30), Vector3(0.0, 1.70, -4.88))
+	_add_box_collider("LeftWallCollider", Vector3(0.30, 3.4, 10.1), Vector3(-5.88, 1.70, 0.0))
+
+	_add_box_collider("BedroomWallBackCollider", Vector3(0.26, 1.90, 3.15), Vector3(-1.55, 0.95, -3.25))
+	_add_box_collider("BedroomWallFrontCollider", Vector3(0.26, 1.90, 1.55), Vector3(-1.55, 0.95, 0.80))
+	_add_box_collider("CafeWallCollider", Vector3(0.26, 1.90, 2.95), Vector3(2.05, 0.95, -3.33))
+
+	_add_box_collider("FutureWingLeftCollider", Vector3(1.15, 2.15, 0.26), Vector3(3.10, 1.075, 1.15))
+	_add_box_collider("FutureWingRightCollider", Vector3(1.00, 2.15, 0.26), Vector3(5.15, 1.075, 1.15))
+
+	_add_box_collider("ReceptionCollider", Vector3(3.08, 1.16, 0.94), Vector3(-3.25, 0.62, 2.60))
+	_add_box_collider("CafeCounterCollider", Vector3(3.08, 1.10, 0.94), Vector3(3.75, 0.58, -2.42))
+	_add_box_collider("BedCollider", Vector3(2.58, 0.90, 1.72), Vector3(-3.78, 0.48, -2.62))
+	_add_cylinder_collider("EmberCollider", 1.16, 1.10, Vector3(0.0, 0.58, 0.20))
+
+
+func _add_box_collider(
+	node_name: String,
+	size: Vector3,
+	position: Vector3,
+	rotation_y_degrees: float = 0.0
+) -> StaticBody3D:
+	var body := StaticBody3D.new()
+	body.name = node_name
+	body.position = position
+	body.rotation_degrees.y = rotation_y_degrees
+
+	var shape := BoxShape3D.new()
+	shape.size = size
+
+	var collision := CollisionShape3D.new()
+	collision.shape = shape
+	body.add_child(collision)
+	physics_colliders.add_child(body)
+	return body
+
+
+func _add_cylinder_collider(
+	node_name: String,
+	radius: float,
+	height: float,
+	position: Vector3
+) -> StaticBody3D:
+	var body := StaticBody3D.new()
+	body.name = node_name
+	body.position = position
+
+	var shape := CylinderShape3D.new()
+	shape.radius = radius
+	shape.height = height
+
+	var collision := CollisionShape3D.new()
+	collision.shape = shape
+	body.add_child(collision)
+	physics_colliders.add_child(body)
+	return body
+
+
 func _build_navigation_test() -> void:
-	# A narrow connected navigation ribbon follows the intended guest flow.
-	# It intentionally excludes the Ember, desk volume, café and bed footprint.
+	# Safe corridor follows the real architecture and never crosses wall geometry.
 	var navigation_mesh := NavigationMesh.new()
-	var corridor_half_width := 0.52
+	var corridor_half_width := 0.44
 
 	var centerline := [
 		Vector3(0.0, 0.20, 8.75),
-		Vector3(0.0, 0.20, 4.55),
+		Vector3(0.0, 0.20, 4.60),
 		Vector3(-3.25, 0.20, 3.55),
-		Vector3(-2.35, 0.20, 2.15),
-		Vector3(-1.55, 0.20, 0.90),
-		Vector3(-1.18, 0.20, -0.82),
-		Vector3(-1.90, 0.20, -1.42),
-		Vector3(-2.15, 0.20, -2.10),
+		Vector3(-2.25, 0.20, 2.35),
+		Vector3(-0.95, 0.20, 2.00),
+		Vector3(1.55, 0.20, 1.80),
+		Vector3(1.65, 0.20, 0.20),
+		Vector3(0.85, 0.20, -1.18),
+		Vector3(-0.82, 0.20, -0.82),
+		Vector3(-2.05, 0.20, -0.82),
+		Vector3(-2.05, 0.20, -2.05),
 	]
 
 	var vertices := PackedVector3Array()
@@ -832,10 +949,10 @@ func _spawn_test_guest() -> void:
 	var route := {
 		"spawn": Vector3(0.0, 0.20, 8.20),
 		"reception": Vector3(-3.25, 0.20, 3.55),
-		"lobby": Vector3(-1.55, 0.20, 0.90),
-		"room_door_out": Vector3(-1.18, 0.20, -0.82),
-		"room_door_in": Vector3(-1.90, 0.20, -1.42),
-		"bed": Vector3(-2.15, 0.20, -2.10),
+		"lobby": Vector3(1.55, 0.20, 1.80),
+		"room_door_out": Vector3(-0.82, 0.20, -0.82),
+		"room_door_in": Vector3(-2.05, 0.20, -0.82),
+		"bed": Vector3(-2.05, 0.20, -2.05),
 		"exit": Vector3(0.0, 0.20, 8.45),
 	}
 
